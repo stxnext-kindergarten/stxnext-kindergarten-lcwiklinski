@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang=en>
+<head>
+    <meta charset=utf-8>
+    <title>Presence analyzer</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content=""/>
+    <meta name="author" content="STX Next sp. z o.o."/>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0">
+    
+    <link href="/static/css/normalize.css" media="all" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body {
+            font-family: latoregular, Helvetica, Arial;
+            background-color: #EEE;
+        }
+        #main {
+            width: 800px;
+            margin: 2em auto;
+            padding: 0 2em;
+        }
+        #content {
+            padding: 0 2em;
+            border: 1px solid #AAA;
+            background-color: #FFF;
+            
+            border: 1px solid black;
+            clear: both;
+            padding: 0 1em;
+        }
+        #chart_div {
+            width: 750px;
+            height: 750px;
+        }
+
+        #header ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #header li {
+            float: left;
+            border: 1px solid #bbb;
+            border-bottom-width: 0;
+            margin: 0;
+        }
+        
+        #header a {
+            text-decoration: none;
+            display: block;
+            background: #eee;
+            padding: 0.24em 1em;
+            color: #00c;
+            width: 12em;
+            text-align: center;
+        }
+        
+        #header a:hover {
+            background: #ddf;
+        }
+        
+        #header #selected {
+            border-color: black;
+        }
+        
+        #header #selected a {
+            position: relative;
+            top: 1px;
+            background: white;
+            color: black;
+            font-weight: bold;
+        }
+    </style>
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart", "timeline"], 'language': 'pl'});
+    </script>
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function(){
+                var loading = $('#loading');
+                $.getJSON("/api/v1/users", function(result) {
+                    var dropdown = $("#user_id");
+                    $.each(result, function(item) {
+                        dropdown.append($("<option />").val(this.user_id).text(this.name));
+                    });
+                    dropdown.show();
+                    loading.hide();
+                });
+                $('#user_id').change(function(){
+                    var selected_user = $("#user_id").val();
+                    var chart_div = $('#chart_div');
+                    if(selected_user) {
+                        loading.show();
+                        chart_div.hide();
+                        
+                        // some dummy data, this should go from API
+                        var result = [
+                            ["Mon", new Date(1, 1, 1, 7, 37, 38), new Date(1, 1, 1, 15, 07, 14)],
+                            ["Tue", new Date(1, 1, 1, 8, 16, 23), new Date(1, 1, 1, 14, 01, 47)],
+                            ["Wed", new Date(1, 1, 1, 7, 00, 06), new Date(1, 1, 1, 13, 24, 12)],
+                            ["Thu", new Date(1, 1, 1, 7, 26, 32), new Date(1, 1, 1, 12, 40, 45)],
+                            ["Fri", new Date(1, 1, 1, 6, 53, 22), new Date(1, 1, 1, 12, 52, 09)]
+                        ] 
+
+                        var data = new google.visualization.DataTable();
+                        data.addColumn('string', 'Weekday');
+                        data.addColumn({ type: 'datetime', id: 'Start' });
+                        data.addColumn({ type: 'datetime', id: 'End' });
+                        data.addRows(result);
+                        var options = {
+                            hAxis: {title: 'Weekday'}
+                        };
+                        var formatter = new google.visualization.DateFormat({pattern: 'HH:mm:ss'});
+                        formatter.format(data, 1);
+                        formatter.format(data, 2);
+
+                        chart_div.show();
+                        loading.hide();
+                        var chart = new google.visualization.Timeline(chart_div[0]);
+                        chart.draw(data, options);
+
+                    }
+                });
+            });
+        })(jQuery);
+    </script>
+</head>
+
+<body>
+    <div id="main">
+        <div id="header">
+            <h1>Presence analyzer</h1>
+            
+            <ul>
+                <li><a href="/static/presence_weekday.html">Presence by weekday</a></li>
+                <li><a href="/static/mean_time_weekday.html">Presence mean time</a></li>
+                <li id="selected"><a href="/static/presence_start_end.html">Presence start-end</a></li>
+            </ul>
+        </div>
+        <div id="content">
+            <h2>Presence start-end weekday</h2>
+            <p>
+                <select id="user_id" style="display: none">
+                    <option value="">--</option>
+                </select>
+                <div id="chart_div" style="display: none">
+                </div>
+                <div id="loading">
+                    <img src="/static/img/loading.gif" />
+                </div>
+            </p>
+        </div>
+
+    </div>
+</body>

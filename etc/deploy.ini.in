@@ -1,0 +1,43 @@
+#
+# Configuration for use with paster/WSGI
+#
+
+
+[app:main]
+use = egg:${:app}
+
+[server:main]
+use = egg:Paste#http
+host = ${server:host}
+port = ${:port}
+threadpool_workers = ${:workers}
+threadpool_spawn_if_under = ${:spawn_if_under}
+threadpool_max_requests = ${:max_requests}
+
+
+#
+# Logging configuration
+#
+
+[loggers]
+keys = root
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = INFO
+handlers = console
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(asctime)s %(levelname)s [%(name)s] %(message)s
+

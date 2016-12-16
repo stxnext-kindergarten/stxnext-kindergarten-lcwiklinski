@@ -27,7 +27,11 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Before each test, set up a environment.
         """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update(
+            {
+                'DATA_CSV': TEST_DATA_CSV
+            }
+        )
         self.client = main.app.test_client()
 
     def tearDown(self):
@@ -40,17 +44,30 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test main page redirect.
         """
-        resp = self.client.get('/')
-        self.assertEqual(resp.status_code, 302)
+        resp = self.client.get(
+            '/',
+        )
+        self.assertEqual(
+            resp.status_code,
+            302,
+        )
         assert resp.headers['Location'].endswith('/presence_weekday.html')
 
     def test_mainpage_header(self):
         """
         Test main page header.
         """
-        resp = self.client.get('/', follow_redirects=True)
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Presence analyzer', resp.data)
+        resp = self.client.get(
+            '/',
+            follow_redirects=True,
+        )
+        self.assertEqual(resp.status_code,
+                         200,
+                         )
+        self.assertIn(
+            b'Presence analyzer',
+            resp.data,
+        )
 
     """
     PRESENCE BY WEEKDAY
@@ -60,9 +77,17 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test presence by weekday header.
         """
-        resp = self.client.get('/static/presence_weekday.html')
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Presence by weekday', resp.data)
+        resp = self.client.get(
+            '/static/presence_weekday.html',
+        )
+        self.assertEqual(
+            resp.status_code,
+            200,
+        )
+        self.assertIn(
+            b'Presence by weekday',
+            resp.data,
+        )
 
     def test_presence_by_weekday_api_route_parameter_is_correct(self):
         """
@@ -79,18 +104,35 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             u'Sun': 0,
         }
 
-        resp = self.client.get('/api/v1/presence_weekday/10', content_type='application/json')
-        self.assertEqual(resp.status_code, 200)
-        data = json.loads(resp.data)
+        resp = self.client.get(
+            '/api/v1/presence_weekday/10',
+            content_type='application/json',
+        )
+        self.assertEqual(
+            resp.status_code,
+            200,
+        )
+        data = json.loads(
+            resp.data,
+        )
         # import ipdb; ipdb.set_trace()
-        self.assertDictEqual(weekdays, dict(data))
+        self.assertDictEqual(
+            weekdays,
+            dict(data),
+        )
 
     def test_presence_by_weekday_api_route_parameter_is_incorrect(self):
         """
         Test presence by weekday api route parameter is incorrect.
         """
-        resp = self.client.get('/api/v1/presence_weekday/wrong', content_type='application/json')
-        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get(
+            '/api/v1/presence_weekday/wrong',
+            content_type='application/json',
+        )
+        self.assertEqual(
+            resp.status_code,
+            404,
+        )
 
     """
     PRESENCE MEAN TIME
@@ -100,9 +142,17 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test presence mean time header.
         """
-        resp = self.client.get('/static/mean_time_weekday.html')
-        self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Presence mean time by weekday', resp.data)
+        resp = self.client.get(
+            '/static/mean_time_weekday.html',
+        )
+        self.assertEqual(
+            resp.status_code,
+            200,
+        )
+        self.assertIn(
+            b'Presence mean time by weekday',
+            resp.data,
+        )
 
     def test_presence_mean_time_api_route_parameter_is_correct(self):
         """
@@ -118,29 +168,65 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             u'Sun': 0,
         }
 
-        resp = self.client.get('/api/v1/mean_time_weekday/10', content_type='application/json')
-        self.assertEqual(resp.status_code, 200)
-        data = json.loads(resp.data)
+        resp = self.client.get(
+            '/api/v1/mean_time_weekday/10',
+            content_type='application/json',
+        )
+        self.assertEqual(
+            resp.status_code,
+            200,
+        )
+        data = json.loads(
+            resp.data,
+        )
         # import ipdb; ipdb.set_trace()
-        self.assertDictEqual(weekdays, dict(data))
+        self.assertDictEqual(
+            weekdays,
+            dict(data),
+        )
 
     def test_presence_mean_tme_api_route_parameter_is_incorrect(self):
         """
         Test presence by weekday api route parameter is incorrect.
         """
-        resp = self.client.get('/api/v1/mean_time_weekday/wrong', content_type='application/json')
-        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get(
+            '/api/v1/mean_time_weekday/wrong',
+            content_type='application/json',
+        )
+        self.assertEqual(
+            resp.status_code,
+            404,
+        )
 
     def test_api_users(self):
         """
         Test users listing.
         """
-        resp = self.client.get('/api/v1/users')
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.content_type, 'application/json')
-        data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
-        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
+        resp = self.client.get(
+            '/api/v1/users',
+        )
+        self.assertEqual(
+            resp.status_code,
+            200,
+        )
+        self.assertEqual(
+            resp.content_type,
+            'application/json',
+        )
+        data = json.loads(
+            resp.data,
+        )
+        self.assertEqual(
+            len(data),
+            2,
+        )
+        self.assertDictEqual(
+            data[0],
+            {
+                u'user_id': 10,
+                u'name': u'User 10'
+            },
+        )
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
@@ -152,7 +238,11 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         Before each test, set up a environment.
         """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update(
+            {
+                'DATA_CSV': TEST_DATA_CSV,
+            },
+        )
 
     def tearDown(self):
         """
@@ -165,14 +255,40 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         Test parsing of CSV file.
         """
         data = utils.get_data()
-        self.assertIsInstance(data, dict)
-        self.assertItemsEqual(data.keys(), [10, 11])
-        sample_date = datetime.date(2013, 9, 10)
-        self.assertIn(sample_date, data[10])
-        self.assertItemsEqual(data[10][sample_date].keys(), ['start', 'end'])
+        self.assertIsInstance(
+            data,
+            dict,
+        )
+        self.assertItemsEqual(
+            data.keys(),
+            [
+                10,
+                11,
+            ],
+        )
+        sample_date = datetime.date(
+            2013,
+            9,
+            10,
+        )
+        self.assertIn(
+            sample_date,
+            data[10],
+        )
+        self.assertItemsEqual(
+            data[10][sample_date].keys(),
+            [
+                'start',
+                'end',
+            ],
+        )
         self.assertEqual(
             data[10][sample_date]['start'],
-            datetime.time(9, 39, 5)
+            datetime.time(
+                9,
+                39,
+                5,
+            )
         )
 
     def test_group_by_weekday(self):
@@ -183,37 +299,56 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             {
                 datetime.date(2013, 9, 10): {
                     'start': datetime.time(9, 39, 5),
-                    'end': datetime.time(17, 59, 52)
+                    'end': datetime.time(17, 59, 52),
                 },
                 datetime.date(2013, 9, 12): {
                     'start': datetime.time(10, 48, 46),
-                    'end': datetime.time(17, 23, 51)
+                    'end': datetime.time(17, 23, 51),
                 },
                 datetime.date(2013, 9, 11): {
                     'start': datetime.time(9, 19, 52),
-                    'end': datetime.time(16, 7, 37)
+                    'end': datetime.time(16, 7, 37),
                 },
             }
         ),
-            [[], [30047], [24465], [23705], [], [], []])
+            [
+                [],
+                [30047],
+                [24465],
+                [23705],
+                [],
+                [],
+                [],
+            ],
+        )
 
     def test_seconds_since_midnight(self):
         """
         Test seconds since midnight.
         """
-        self.assertEqual(utils.seconds_since_midnight(datetime.time(10, 30, 50)), 37850)
+        self.assertEqual(utils.seconds_since_midnight(
+            datetime.time(10, 30, 50)),
+            37850,
+        )
 
     def test_interval(self):
         """
         Test interval.
         """
-        self.assertEqual(utils.interval(datetime.time(10,10,10), datetime.time(10, 30, 50)), 1240)
+        self.assertEqual(utils.interval(
+            datetime.time(10,10,10),
+            datetime.time(10, 30, 50)),
+            1240,
+        )
 
     def test_mean(self):
         """
         Test mean.
         """
-        self.assertEqual(utils.mean([]), 0)
+        self.assertEqual(utils.mean(
+            []),
+            0,
+        )
 
 def suite():
     """

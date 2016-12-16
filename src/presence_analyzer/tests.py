@@ -68,18 +68,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test presence by weekday api route parameter is correct.
         """
-        weekdays = {u'Weekday': u'Presence (s)',
-                    u'Mon': 0,
-                    u'Tue': 30047,
-                    u'Wed': 24465,
-                    u'Thu': 23705,
-                    u'Fri': 0,
-                    u'Sat': 0,
-                    u'Sun': 0
-                    }
+        weekdays = {
+            u'Weekday': u'Presence (s)',
+            u'Mon': 0,
+            u'Tue': 30047,
+            u'Wed': 24465,
+            u'Thu': 23705,
+            u'Fri': 0,
+            u'Sat': 0,
+            u'Sun': 0,
+        }
 
-        resp = self.client.get('/api/v1/presence_weekday/10',
-                               content_type='application/json')
+        resp = self.client.get('/api/v1/presence_weekday/10', content_type='application/json')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
         # import ipdb; ipdb.set_trace()
@@ -89,8 +89,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test presence by weekday api route parameter is incorrect.
         """
-        resp = self.client.get('/api/v1/presence_weekday/wrong',
-                               content_type='application/json')
+        resp = self.client.get('/api/v1/presence_weekday/wrong', content_type='application/json')
         self.assertEqual(resp.status_code, 404)
 
     """
@@ -109,17 +108,17 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test presence by weekday api route parameter is correct.
         """
-        weekdays = {u'Mon': 0,
-                    u'Tue': 30047.0,
-                    u'Wed': 24465.0,
-                    u'Thu': 23705.0,
-                    u'Fri': 0,
-                    u'Sat': 0,
-                    u'Sun': 0
-                    }
+        weekdays = {
+            u'Mon': 0,
+            u'Tue': 30047.0,
+            u'Wed': 24465.0,
+            u'Thu': 23705.0,
+            u'Fri': 0,
+            u'Sat': 0,
+            u'Sun': 0,
+        }
 
-        resp = self.client.get('/api/v1/mean_time_weekday/10',
-                               content_type='application/json')
+        resp = self.client.get('/api/v1/mean_time_weekday/10', content_type='application/json')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
         # import ipdb; ipdb.set_trace()
@@ -129,8 +128,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test presence by weekday api route parameter is incorrect.
         """
-        resp = self.client.get('/api/v1/mean_time_weekday/wrong',
-                               content_type='application/json')
+        resp = self.client.get('/api/v1/mean_time_weekday/wrong', content_type='application/json')
         self.assertEqual(resp.status_code, 404)
 
     def test_api_users(self):
@@ -181,10 +179,23 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         Test Group by weekday.
         """
-        self.assertEqual(utils.group_by_weekday({datetime.date(2013, 9, 10): {'start': datetime.time(9, 39, 5), 'end': datetime.time(17, 59, 52)},
-                                                 datetime.date(2013, 9, 12): {'start': datetime.time(10, 48, 46), 'end': datetime.time(17, 23, 51)},
-                                                 datetime.date(2013, 9, 11): {'start': datetime.time(9, 19, 52), 'end': datetime.time(16, 7, 37)}}),
-                         [[], [30047], [24465], [23705], [], [], []])
+        self.assertEqual(utils.group_by_weekday(
+            {
+                datetime.date(2013, 9, 10): {
+                    'start': datetime.time(9, 39, 5),
+                    'end': datetime.time(17, 59, 52)
+                },
+                datetime.date(2013, 9, 12): {
+                    'start': datetime.time(10, 48, 46),
+                    'end': datetime.time(17, 23, 51)
+                },
+                datetime.date(2013, 9, 11): {
+                    'start': datetime.time(9, 19, 52),
+                    'end': datetime.time(16, 7, 37)
+                },
+            }
+        ),
+            [[], [30047], [24465], [23705], [], [], []])
 
     def test_seconds_since_midnight(self):
         """

@@ -10,8 +10,8 @@ import unittest
 
 from presence_analyzer import main, utils
 
-my_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, my_path + '/../')
+MY_PATH = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, MY_PATH + '/../')
 
 TEST_DATA_CSV = os.path.join(os.path.dirname(
     __file__), '..', '..', 'runtime', 'data', 'test_data.csv')
@@ -52,10 +52,6 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b'Presence analyzer', resp.data)
 
-    """
-    PRESENCE BY WEEKDAY
-    """
-
     def test_presence_by_weekday_header(self):
         """
         Test presence by weekday header.
@@ -64,7 +60,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b'Presence by weekday', resp.data)
 
-    def test_presence_by_weekday_api_route_parameter_is_correct(self):
+    def weekday_parameter_correct(self):
         """
         Test presence by weekday api route parameter is correct.
         """
@@ -88,7 +84,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         # import ipdb; ipdb.set_trace()
         self.assertDictEqual(weekdays, dict(data))
 
-    def test_presence_by_weekday_api_route_parameter_is_incorrect(self):
+    def weekday_parameter_incorrect(self):
         """
         Test presence by weekday api route parameter is incorrect.
         """
@@ -98,10 +94,6 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 404)
 
-    """
-    PRESENCE MEAN TIME
-    """
-
     def test_presence_mean_time_header(self):
         """
         Test presence mean time header.
@@ -110,7 +102,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b'Presence mean time by weekday', resp.data)
 
-    def test_presence_mean_time_api_route_parameter_is_correct(self):
+    def mean_time_parameter_correct(self):
         """
         Test presence by weekday api route parameter is correct.
         """
@@ -133,7 +125,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         # import ipdb; ipdb.set_trace()
         self.assertDictEqual(weekdays, dict(data))
 
-    def test_presence_mean_tme_api_route_parameter_is_incorrect(self):
+    def mean_time_parameter_incorrect(self):
         """
         Test presence by weekday api route parameter is incorrect.
         """

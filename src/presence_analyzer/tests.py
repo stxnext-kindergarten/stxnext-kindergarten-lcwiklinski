@@ -2,19 +2,25 @@
 """
 Presence analyzer unit tests.
 """
-import os.path
-import sys
-import json
+from __future__ import unicode_literals
+
 import datetime
+import json
+import os.path
 import unittest
 
-from presence_analyzer import main, utils
+import main
+import utils
+import views
 
-MY_PATH = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, MY_PATH + '/../')
-
-TEST_DATA_CSV = os.path.join(os.path.dirname(
-    __file__), '..', '..', 'runtime', 'data', 'test_data.csv')
+TEST_DATA_CSV = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..',
+    '..',
+    'runtime',
+    'data',
+    'test_data.csv',
+)
 
 
 # pylint: disable=maybe-no-member, too-many-public-methods
@@ -50,7 +56,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/', follow_redirects=True)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Presence analyzer', resp.data)
+        self.assertIn(u'Presence analyzer', resp.data)
 
     def test_presence_by_weekday_header(self):
         """
@@ -58,12 +64,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/static/presence_weekday.html')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Presence by weekday', resp.data)
+        self.assertIn(u'Presence by weekday', resp.data)
 
-    def weekday_parameter_correct(self):
+    def test_weekday_parameter_correct(self):
         """
         Test presence by weekday api route parameter is correct.
         """
+        resp = self.client.get(
+            '/api/v1/presence_weekday/10',
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
         weekdays = {
             u'Weekday': u'Presence (s)',
             u'Mon': 0,
@@ -74,17 +86,10 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             u'Sat': 0,
             u'Sun': 0,
         }
-
-        resp = self.client.get(
-            '/api/v1/presence_weekday/10',
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
-        # import ipdb; ipdb.set_trace()
         self.assertDictEqual(weekdays, dict(data))
 
-    def weekday_parameter_incorrect(self):
+    def test_weekday_parameter_incorrect(self):
         """
         Test presence by weekday api route parameter is incorrect.
         """
@@ -100,12 +105,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/static/mean_time_weekday.html')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(b'Presence mean time by weekday', resp.data)
+        self.assertIn(u'Presence mean time by weekday', resp.data)
 
-    def mean_time_parameter_correct(self):
+    def test_mean_time_parameter_correct(self):
         """
         Test presence by weekday api route parameter is correct.
         """
+        resp = self.client.get(
+            '/api/v1/mean_time_weekday/10',
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
         weekdays = {
             u'Mon': 0,
             u'Tue': 30047.0,
@@ -115,17 +126,10 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             u'Sat': 0,
             u'Sun': 0,
         }
-
-        resp = self.client.get(
-            '/api/v1/mean_time_weekday/10',
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
-        # import ipdb; ipdb.set_trace()
         self.assertDictEqual(weekdays, dict(data))
 
-    def mean_time_parameter_incorrect(self):
+    def test_mean_time_parameter_incorrect(self):
         """
         Test presence by weekday api route parameter is incorrect.
         """
@@ -187,43 +191,60 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
 
     def test_group_by_weekday(self):
         """
-        Test Group by weekday.
+        Test Group by weekday method.
         """
-        self.assertEqual(utils.group_by_weekday(
-            {
-                datetime.date(2013, 9, 10): {
-                    'start': datetime.time(9, 39, 5),
-                    'end': datetime.time(17, 59, 52),
-                },
-                datetime.date(2013, 9, 12): {
-                    'start': datetime.time(10, 48, 46),
-                    'end': datetime.time(17, 23, 51),
-                },
-                datetime.date(2013, 9, 11): {
-                    'start': datetime.time(9, 19, 52),
-                    'end': datetime.time(16, 7, 37),
-                },
-            }), [[], [30047], [24465], [23705], [], [], [],])
+        self.assertEqual(
+            utils.group_by_weekday(
+                {
+                    datetime.date(2013, 9, 10): {
+                        'start': datetime.time(9, 39, 5),
+                        'end': datetime.time(17, 59, 52),
+                    },
+                    datetime.date(2013, 9, 12): {
+                        'start': datetime.time(10, 48, 46),
+                        'end': datetime.time(17, 23, 51),
+                    },
+                    datetime.date(2013, 9, 11): {
+                        'start': datetime.time(9, 19, 52),
+                        'end': datetime.time(16, 7, 37),
+                    },
+                }
+            ),
+            [[], [30047], [24465], [23705], [], [], [],]
+        )
 
     def test_seconds_since_midnight(self):
         """
-        Test seconds since midnight.
+        Test seconds since midnight method.
         """
-        self.assertEqual(utils.seconds_since_midnight(
-            datetime.time(10, 30, 50)), 37850)
+        self.assertEqual(
+            utils.seconds_since_midnight(datetime.time(10, 30, 50)), 37850
+        )
 
     def test_interval(self):
         """
-        Test interval.
+        Test interval method.
         """
-        self.assertEqual(utils.interval(
-            datetime.time(10, 10, 10), datetime.time(10, 30, 50)), 1240)
+        self.assertEqual(
+            utils.interval(
+                datetime.time(10, 10, 10), datetime.time(10, 30, 50)
+            ),
+            1240,
+        )
+
+    def test_interval_wrong_parameter(self):
+        """
+        Test interval method with incorrect parameters.
+        """
+        with self.assertRaises(AttributeError):
+            utils.interval('asd', 5)
 
     def test_mean(self):
         """
-        Test mean.
+        Test arithmetic mean method.
         """
         self.assertEqual(utils.mean([]), 0)
+        self.assertEqual(utils.mean([2, 5, 10, 15]), 8)
 
 def suite():
     """

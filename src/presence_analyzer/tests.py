@@ -56,7 +56,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/', follow_redirects=True)
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(u'Presence analyzer', resp.data)
+        self.assertIn('Presence analyzer', resp.data)
 
     def test_presence_by_weekday_header(self):
         """
@@ -64,7 +64,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/static/presence_weekday.html')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(u'Presence by weekday', resp.data)
+        self.assertIn('Presence by weekday', resp.data)
 
     def test_weekday_parameter_correct(self):
         """
@@ -77,14 +77,14 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         weekdays = {
-            u'Weekday': u'Presence (s)',
-            u'Mon': 0,
-            u'Tue': 30047,
-            u'Wed': 24465,
-            u'Thu': 23705,
-            u'Fri': 0,
-            u'Sat': 0,
-            u'Sun': 0,
+            'Weekday': 'Presence (s)',
+            'Mon': 0,
+            'Tue': 30047,
+            'Wed': 24465,
+            'Thu': 23705,
+            'Fri': 0,
+            'Sat': 0,
+            'Sun': 0,
         }
         data = json.loads(resp.data)
         self.assertDictEqual(weekdays, dict(data))
@@ -105,7 +105,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         resp = self.client.get('/static/mean_time_weekday.html')
         self.assertEqual(resp.status_code, 200)
-        self.assertIn(u'Presence mean time by weekday', resp.data)
+        self.assertIn('Presence mean time by weekday', resp.data)
 
     def test_mean_time_parameter_correct(self):
         """
@@ -118,13 +118,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         weekdays = {
-            u'Mon': 0,
-            u'Tue': 30047.0,
-            u'Wed': 24465.0,
-            u'Thu': 23705.0,
-            u'Fri': 0,
-            u'Sat': 0,
-            u'Sun': 0,
+            'Mon': 0,
+            'Tue': 30047.0,
+            'Wed': 24465.0,
+            'Thu': 23705.0,
+            'Fri': 0,
+            'Sat': 0,
+            'Sun': 0,
         }
         data = json.loads(resp.data)
         self.assertDictEqual(weekdays, dict(data))
@@ -151,8 +151,8 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertDictEqual(
             data[0],
             {
-                u'user_id': 10,
-                u'name': u'User 10',
+                'user_id': 10,
+                'name': 'User 10',
             },
         )
 
@@ -230,6 +230,12 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
                 datetime.time(10, 10, 10), datetime.time(10, 30, 50)
             ),
             1240,
+        )
+        self.assertEqual(
+            utils.interval(
+                datetime.time(10, 50, 30), datetime.time(10, 30, 50)
+            ),
+            -1180,
         )
 
     def test_interval_wrong_parameter(self):

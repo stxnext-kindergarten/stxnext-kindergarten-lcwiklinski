@@ -76,18 +76,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        weekdays = {
-            'Weekday': 'Presence (s)',
-            'Mon': 0,
-            'Tue': 30047,
-            'Wed': 24465,
-            'Thu': 23705,
-            'Fri': 0,
-            'Sat': 0,
-            'Sun': 0,
-        }
+        weekdays = [
+            ['Weekday', 'Presence (s)'],
+            ['Mon', 0],
+            ['Tue', 30047],
+            ['Wed', 24465],
+            ['Thu', 23705],
+            ['Fri', 0],
+            ['Sat', 0],
+            ['Sun', 0],
+        ]
         data = json.loads(resp.data)
-        self.assertDictEqual(weekdays, dict(data))
+        self.assertListEqual(weekdays, data)
 
     def test_weekday_parameter_incorrect(self):
         """
@@ -117,17 +117,17 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
-        weekdays = {
-            'Mon': 0,
-            'Tue': 30047.0,
-            'Wed': 24465.0,
-            'Thu': 23705.0,
-            'Fri': 0,
-            'Sat': 0,
-            'Sun': 0,
-        }
+        weekdays = [
+            ['Mon', 0],
+            ['Tue', 30047.0],
+            ['Wed', 24465.0],
+            ['Thu', 23705.0],
+            ['Fri', 0],
+            ['Sat', 0],
+            ['Sun', 0],
+        ]
         data = json.loads(resp.data)
-        self.assertDictEqual(weekdays, dict(data))
+        self.assertListEqual(weekdays, data)
 
     def test_mean_time_parameter_incorrect(self):
         """

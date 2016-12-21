@@ -6,8 +6,8 @@ Defines views.
 import calendar
 from flask import redirect, abort
 
-from presence_analyzer.main import app
-from presence_analyzer.utils import jsonify, get_data, mean, group_by_weekday
+from main import app
+from utils import jsonify, get_data, mean, group_by_weekday
 
 import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name

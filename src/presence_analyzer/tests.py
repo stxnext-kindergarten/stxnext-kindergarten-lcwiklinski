@@ -2,16 +2,24 @@
 """
 Presence analyzer unit tests.
 """
-import os.path
-import json
+from __future__ import unicode_literals
+
 import datetime
+import json
+import os.path
 import unittest
 
-from presence_analyzer import main, views, utils
-
+import main
+import utils
+import views
 
 TEST_DATA_CSV = os.path.join(
-    os.path.dirname(__file__), '..', '..', 'runtime', 'data', 'test_data.csv'
+    os.path.dirname(os.path.abspath(__file__)),
+    '..',
+    '..',
+    'runtime',
+    'data',
+    'test_data.csv',
 )
 
 
@@ -42,6 +50,95 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 302)
         assert resp.headers['Location'].endswith('/presence_weekday.html')
 
+    def test_mainpage_header(self):
+        """
+        Test main page header.
+        """
+        resp = self.client.get('/', follow_redirects=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('Presence analyzer', resp.data)
+
+    def test_presence_by_weekday_header(self):
+        """
+        Test presence by weekday header.
+        """
+        resp = self.client.get('/static/presence_weekday.html')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('Presence by weekday', resp.data)
+
+    def test_weekday_parameter_correct(self):
+        """
+        Test presence by weekday api route parameter is correct.
+        """
+        resp = self.client.get(
+            '/api/v1/presence_weekday/10',
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        weekdays = [
+            ['Weekday', 'Presence (s)'],
+            ['Mon', 0],
+            ['Tue', 30047],
+            ['Wed', 24465],
+            ['Thu', 23705],
+            ['Fri', 0],
+            ['Sat', 0],
+            ['Sun', 0],
+        ]
+        data = json.loads(resp.data)
+        self.assertListEqual(weekdays, data)
+
+    def test_weekday_parameter_incorrect(self):
+        """
+        Test presence by weekday api route parameter is incorrect.
+        """
+        resp = self.client.get(
+            '/api/v1/presence_weekday/wrong',
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 404)
+
+    def test_presence_mean_time_header(self):
+        """
+        Test presence mean time header.
+        """
+        resp = self.client.get('/static/mean_time_weekday.html')
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('Presence mean time by weekday', resp.data)
+
+    def test_mean_time_parameter_correct(self):
+        """
+        Test presence by weekday api route parameter is correct.
+        """
+        resp = self.client.get(
+            '/api/v1/mean_time_weekday/10',
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        weekdays = [
+            ['Mon', 0],
+            ['Tue', 30047.0],
+            ['Wed', 24465.0],
+            ['Thu', 23705.0],
+            ['Fri', 0],
+            ['Sat', 0],
+            ['Sun', 0],
+        ]
+        data = json.loads(resp.data)
+        self.assertListEqual(weekdays, data)
+
+    def test_mean_time_parameter_incorrect(self):
+        """
+        Test presence by weekday api route parameter is incorrect.
+        """
+        resp = self.client.get(
+            '/api/v1/mean_time_weekday/wrong',
+            content_type='application/json',
+        )
+        self.assertEqual(resp.status_code, 404)
+
     def test_api_users(self):
         """
         Test users listing.
@@ -51,7 +148,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
         self.assertEqual(len(data), 2)
-        self.assertDictEqual(data[0], {u'user_id': 10, u'name': u'User 10'})
+        self.assertDictEqual(
+            data[0],
+            {
+                'user_id': 10,
+                'name': 'User 10',
+            },
+        )
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
@@ -86,6 +189,68 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             datetime.time(9, 39, 5)
         )
 
+    def test_group_by_weekday(self):
+        """
+        Test Group by weekday method.
+        """
+        self.assertEqual(
+            utils.group_by_weekday(
+                {
+                    datetime.date(2013, 9, 10): {
+                        'start': datetime.time(9, 39, 5),
+                        'end': datetime.time(17, 59, 52),
+                    },
+                    datetime.date(2013, 9, 12): {
+                        'start': datetime.time(10, 48, 46),
+                        'end': datetime.time(17, 23, 51),
+                    },
+                    datetime.date(2013, 9, 11): {
+                        'start': datetime.time(9, 19, 52),
+                        'end': datetime.time(16, 7, 37),
+                    },
+                }
+            ),
+            [[], [30047], [24465], [23705], [], [], [],]
+        )
+
+    def test_seconds_since_midnight(self):
+        """
+        Test seconds since midnight method.
+        """
+        self.assertEqual(
+            utils.seconds_since_midnight(datetime.time(10, 30, 50)), 37850
+        )
+
+    def test_interval(self):
+        """
+        Test interval method.
+        """
+        self.assertEqual(
+            utils.interval(
+                datetime.time(10, 10, 10), datetime.time(10, 30, 50)
+            ),
+            1240,
+        )
+        self.assertEqual(
+            utils.interval(
+                datetime.time(10, 50, 30), datetime.time(10, 30, 50)
+            ),
+            -1180,
+        )
+
+    def test_interval_wrong_parameter(self):
+        """
+        Test interval method with incorrect parameters.
+        """
+        with self.assertRaises(AttributeError):
+            utils.interval('asd', 5)
+
+    def test_mean(self):
+        """
+        Test arithmetic mean method.
+        """
+        self.assertEqual(utils.mean([]), 0)
+        self.assertEqual(utils.mean([2, 5, 10, 15]), 8)
 
 def suite():
     """

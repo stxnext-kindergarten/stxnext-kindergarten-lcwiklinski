@@ -75,13 +75,27 @@ def group_by_weekday(items):
     """
     Groups presence entries by weekday.
     """
-    result = [[], [], [], [], [], [], []]  # one list for every day in week
+    result = [[] for i in range(7)] # one list for every day of the week.
     for date in items:
         start = items[date]['start']
         end = items[date]['end']
         result[date.weekday()].append(interval(start, end))
     return result
 
+def group_by_weekday_by_start_end(items):
+    """
+    Groups presence entries by weekday start and end.
+    """
+    result = {i: {'start': [], 'end': []} for i in range(7)}
+
+    for date in items:
+        start = items[date]['start']
+        end = items[date]['end']
+
+        result[date.weekday()]['start'].append(seconds_since_midnight(start))
+        result[date.weekday()]['end'].append(seconds_since_midnight(end))
+
+    return result
 
 def seconds_since_midnight(time):
     """

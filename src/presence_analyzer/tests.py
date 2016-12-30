@@ -66,7 +66,8 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn('Presence by weekday', resp.data)
 
-    def test_weekday_parameter_correct(self):
+
+    def test_weekday_parameter(self):
         """
         Test presence by weekday api route parameter is correct.
         """
@@ -107,7 +108,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn('Presence mean time by weekday', resp.data)
 
-    def test_mean_time_parameter_correct(self):
+    def test_mean_time_parameter(self):
         """
         Test presence by weekday api route parameter is correct.
         """
@@ -128,6 +129,31 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         ]
         data = json.loads(resp.data)
         self.assertListEqual(weekdays, data)
+
+    def test_presence_by_start_end(self):
+        """
+        Test presence header of start end view and
+        by start and end api result.
+        """
+        resp = self.client.get('/static/presence_start_end.html')
+        self.assertIn('Presence start-end weekday', resp.data)
+
+        api = self.client.get(
+            '/api/v1/presence_start_end/10',
+            content_type='application/json',
+        )
+
+        result = [
+            ['Mon', 0, 0],
+            ['Tue', 34745.0, 64792.0],
+            ['Wed', 33592.0, 58057.0],
+            ['Thu', 38926.0, 62631.0],
+            ['Fri', 0, 0],
+            ['Sat', 0, 0],
+            ['Sun', 0, 0],
+        ]
+        data = json.loads(api.data)
+        self.assertListEqual(result, data)
 
     def test_mean_time_parameter_incorrect(self):
         """
@@ -211,6 +237,38 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
                 }
             ),
             [[], [30047], [24465], [23705], [], [], [],]
+        )
+
+    def test_group_by_weekday_by_start_end(self):
+        """
+        Test Group by weekday method.
+        """
+        self.assertEqual(
+            utils.group_by_weekday_by_start_end(
+                {
+                    datetime.date(2013, 9, 10): {
+                        'start': datetime.time(0, 0, 0),
+                        'end': datetime.time(0, 0, 0),
+                    },
+                    datetime.date(2013, 9, 12): {
+                        'start': datetime.time(10, 48, 46),
+                        'end': datetime.time(17, 23, 51),
+                    },
+                    datetime.date(2013, 9, 11): {
+                        'start': datetime.time(9, 19, 52),
+                        'end': datetime.time(16, 7, 37),
+                    }
+                }
+            ),
+            {
+                0: {'start': [], 'end': []},
+                1: {'start': [0], 'end': [0]},
+                2: {'start': [33592], 'end': [58057]},
+                3: {'start': [38926], 'end': [62631]},
+                4: {'start': [], 'end': []},
+                5: {'start': [], 'end': []},
+                6: {'start': [], 'end': []},
+            }
         )
 
     def test_seconds_since_midnight(self):

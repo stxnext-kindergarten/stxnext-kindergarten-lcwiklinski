@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block js %}
+    <script type="text/javascript">
+        (function($) {
+            $(document).ready(function(){
+                var loading = $('#loading');
+                $.getJSON("/api/v1/users", function(result) {
+                    var dropdown = $("#user_id");
+                    $.each(result, function(item) {
+                        dropdown.append($("<option />").val(this.user_id).text(this.name));
+                    });
+                    dropdown.show();
+                    loading.hide();
+                });
+                $('#user_id').change(function(){
+                    var selected_user = $("#user_id").val();
+                    var chart_div = $('#chart_div');
+                    if(selected_user) {
+                        loading.show();
+                        chart_div.hide();
+                        $.getJSON("/api/v1/presence_start_end/" + selected_user, function(result) {
+                            var data = new google.visualization.DataTable(result),
+                                chart = new google.visualization.Timeline(chart_div[0]),
+                                formatter = new google.visualization.DateFormat({
+                                    pattern: 'HH:mm:ss'
+                                }),
+                                options = {
+                                    hAxis: {
+                                        title: 'Weekday'
+                                    },
+                                };
+
+                            $.each(result, function(index, value) {
+                                value[1] = parseInterval(value[1]);
+                                value[2] = parseInterval(value[2]);
+                            });
+
+                            data.addColumn('string', 'Weekday');
+                            data.addColumn({
+                                type: 'datetime',
+                                id: 'Start'
+                             });
+                            data.addColumn({
+                                type: 'datetime',
+                                id: 'End'
+                             });
+                            data.addRows(result);
+
+                            formatter.format(data, 1);
+                            formatter.format(data, 2);
+
+                            chart_div.show();
+                            loading.hide();
+                            chart.draw(data, options);
+                        });
+                    }
+                });
+            });
+        })(jQuery);
+    </script>
+{% endblock %}
+
+{% block header %}Presence start-end weekday{% endblock %}

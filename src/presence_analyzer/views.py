@@ -2,9 +2,12 @@
 """
 Defines views.
 """
-
-import calendar
-from flask import redirect, abort
+from flask import (
+    abort,
+    redirect,
+    render_template,
+    url_for
+)
 
 from main import app
 from utils import (
@@ -12,20 +15,40 @@ from utils import (
     group_by_weekday,
     group_by_weekday_by_start_end,
     jsonify,
-    mean,
+    mean
 )
 
+import calendar
 import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
-
 
 @app.route('/')
 def mainpage():
     """
     Redirects to front page.
     """
-    return redirect('/static/presence_weekday.html')
+    return redirect(url_for('presence_weekday'))
 
+@app.route('/presence_weekday')
+def presence_weekday():
+    """
+    Returns presence weekday page.
+    """
+    return render_template('presence_weekday.html')
+
+@app.route('/mean_time_weekday')
+def mean_time_weekday():
+    """
+    Returns mean time weekday page.
+    """
+    return render_template('mean_time_weekday.html')
+
+@app.route('/presence_start_end')
+def presence_start_end():
+    """
+    Returns presence start end page.
+    """
+    return render_template('presence_start_end.html')
 
 @app.route('/api/v1/users', methods=['GET'])
 @jsonify

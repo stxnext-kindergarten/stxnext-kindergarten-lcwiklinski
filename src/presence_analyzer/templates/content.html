@@ -1,0 +1,13 @@
+<div id="content">
+    <h2>{% block header %}{% endblock %}</h2>
+    <p>
+        <select id="user_id" style="display: none">
+            <option value="">--</option>
+        </select>
+        <div id="chart_div" style="display: none">
+        </div>
+        <div id="loading">
+            <img src="{{ url_for('static', filename='/img/loading.gif') }}" />
+        </div>
+    </p>
+</div>

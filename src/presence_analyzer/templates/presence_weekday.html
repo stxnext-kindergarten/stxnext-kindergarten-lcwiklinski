@@ -1,0 +1,45 @@
+<%inherit file='base.html'/>
+
+<%block name='js'>
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function(){
+            var $loading = $('#loading');
+
+            $.getJSON('/api/v1/users', function(result) {
+                var $dropdown = $('#user-id');
+
+                $.each(result, function(item) {
+                    $dropdown.append($('<option />', {
+                       'val': this.user_id,
+                       'text': this.name
+                    }));
+                });
+                $dropdown.show();
+                $loading.hide();
+            });
+
+            $('#user-id').change(function(){
+                var selectedUser = $('#user-id').val(),
+                    $chartDiv = $('#chart-div');
+
+                if(selectedUser) {
+                    $loading.show();
+                    $chartDiv.hide();
+                    $.getJSON('/api/v1/presence_weekday/' + selectedUser, function(result) {
+                        var data = new google.visualization.arrayToDataTable(result),
+                            chart = new google.visualization.PieChart($chartDiv[0]),
+                            options = {};
+
+                        $chartDiv.show();
+                        $loading.hide();
+                        chart.draw(data, options);
+                    });
+                }
+            });
+        });
+    })(jQuery);
+</script>
+</%block>
+
+<%block name='header'>Presence by weekday</%block>

@@ -4,7 +4,9 @@ Defines views.
 """
 
 import calendar
-from flask import redirect, abort
+from flask import abort
+from flask_mako import render_template
+from jinja2 import TemplateNotFound
 
 from main import app
 from utils import (
@@ -19,12 +21,13 @@ import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
-@app.route('/')
-def mainpage():
-    """
-    Redirects to front page.
-    """
-    return redirect('/static/presence_weekday.html')
+@app.route('/', defaults={'page_name' : 'presence_weekday'})
+@app.route('/<string:page_name>')
+def static_page(page_name):
+    try:
+        return render_template('{}.html'.format(page_name))
+    except TemplateNotFound:
+        abort(404)
 
 
 @app.route('/api/v1/users', methods=['GET'])

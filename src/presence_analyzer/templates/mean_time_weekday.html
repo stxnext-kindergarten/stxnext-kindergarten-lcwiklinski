@@ -1,0 +1,62 @@
+<%inherit file='base.html'/>
+
+<%block name='js'>
+<script type="text/javascript">
+    (function($) {
+        $(document).ready(function(){
+            var $loading = $('#loading');
+
+            $.getJSON('/api/v1/users', function(result) {
+                var $dropdown = $('#user-id');
+
+                $.each(result, function(item) {
+                    $dropdown.append($('<option />', {
+                       'val': this.user_id,
+                       'text': this.name
+                    }));
+                });
+                $dropdown.show();
+                $loading.hide();
+            });
+
+            $('#user-id').change(function(){
+                var selectedUser = $('#user-id').val(),
+                    $chartDiv = $('#chart-div');
+
+                if(selectedUser) {
+                    $loading.show();
+                    $chartDiv.hide();
+                    $.getJSON('/api/v1/mean_time_weekday/' + selectedUser,function(result) {
+                        var data = new google.visualization.DataTable(),
+                            chart = new google.visualization.ColumnChart($chartDiv[0]),
+                            formatter = new google.visualization.DateFormat({
+                                pattern: 'HH:mm:ss'
+                            }),
+                            options = {
+                                hAxis: {
+                                    title: 'Weekday'
+                                }
+                            };
+
+                        $.each(result, function(index, value) {
+                            value[1] = parseInterval(value[1]);
+                        });
+
+                        data.addColumn('string', 'Weekday');
+                        data.addColumn('datetime', 'Mean time (h:m:s)');
+                        data.addRows(result);
+
+                        formatter.format(data, 1);
+
+                        $chartDiv.show();
+                        $loading.hide();
+                        chart.draw(data, options);
+                    });
+                }
+            });
+        });
+    })(jQuery);
+</script>
+</%block>
+
+<%block name='header'>Presence mean time by weekday</%block>

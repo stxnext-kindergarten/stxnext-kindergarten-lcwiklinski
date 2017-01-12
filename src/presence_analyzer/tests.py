@@ -5,6 +5,7 @@ Presence analyzer unit tests.
 from __future__ import unicode_literals
 
 import datetime
+import httplib
 import json
 import os.path
 import unittest
@@ -44,26 +45,26 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
     def test_mainpage(self):
         """
-        Test main page redirect.
+        Test main page load.
         """
         resp = self.client.get('/')
-        self.assertEqual(resp.status_code, 302)
-        assert resp.headers['Location'].endswith('/presence_weekday.html')
+        self.assertEqual(resp.status_code, httplib.OK)
+
 
     def test_mainpage_header(self):
         """
         Test main page header.
         """
         resp = self.client.get('/', follow_redirects=True)
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, httplib.OK)
         self.assertIn('Presence analyzer', resp.data)
 
     def test_presence_by_weekday_header(self):
         """
         Test presence by weekday header.
         """
-        resp = self.client.get('/static/presence_weekday.html')
-        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/presence_weekday', follow_redirects=True)
+        self.assertEqual(resp.status_code, httplib.OK)
         self.assertIn('Presence by weekday', resp.data)
 
 
@@ -75,7 +76,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             '/api/v1/presence_weekday/10',
             content_type='application/json',
         )
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, httplib.OK)
 
         weekdays = [
             ['Weekday', 'Presence (s)'],
@@ -98,14 +99,14 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             '/api/v1/presence_weekday/wrong',
             content_type='application/json',
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, httplib.NOT_FOUND)
 
     def test_presence_mean_time_header(self):
         """
         Test presence mean time header.
         """
-        resp = self.client.get('/static/mean_time_weekday.html')
-        self.assertEqual(resp.status_code, 200)
+        resp = self.client.get('/mean_time_weekday', follow_redirects=True)
+        self.assertEqual(resp.status_code, httplib.OK)
         self.assertIn('Presence mean time by weekday', resp.data)
 
     def test_mean_time_parameter(self):
@@ -116,7 +117,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             '/api/v1/mean_time_weekday/10',
             content_type='application/json',
         )
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, httplib.OK)
 
         weekdays = [
             ['Mon', 0],
@@ -135,7 +136,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         Test presence header of start end view and
         by start and end api result.
         """
-        resp = self.client.get('/static/presence_start_end.html')
+        resp = self.client.get('/presence_start_end', follow_redirects=True)
         self.assertIn('Presence start-end weekday', resp.data)
 
         api = self.client.get(
@@ -163,14 +164,14 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             '/api/v1/mean_time_weekday/wrong',
             content_type='application/json',
         )
-        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp.status_code, httplib.NOT_FOUND)
 
     def test_api_users(self):
         """
         Test users listing.
         """
         resp = self.client.get('/api/v1/users')
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, httplib.OK)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
         self.assertEqual(len(data), 2)
@@ -181,6 +182,18 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
                 'name': 'User 10',
             },
         )
+
+    def test_static_page(self):
+        """
+        Test static page method.
+        """
+        resp = self.client.get('/mean_time_weekday')
+        self.assertEqual(resp.status_code, httplib.OK)
+        self.assertTrue('mean_time_weekday' in resp.get_data(as_text=True))
+
+        page_not_found = self.client.get('/page_not_exist')
+        self.assertEqual(page_not_found.status_code, httplib.NOT_FOUND)
+        self.assertTrue('Not Found' in page_not_found.get_data(as_text=True))
 
 
 class PresenceAnalyzerUtilsTestCase(unittest.TestCase):

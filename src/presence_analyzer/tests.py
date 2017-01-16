@@ -23,6 +23,15 @@ TEST_DATA_CSV = os.path.join(
     'test_data.csv',
 )
 
+TEST_DATA_XML = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..',
+    '..',
+    'runtime',
+    'data',
+    'users.xml',
+)
+
 
 # pylint: disable=maybe-no-member, too-many-public-methods
 class PresenceAnalyzerViewsTestCase(unittest.TestCase):
@@ -34,7 +43,10 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Before each test, set up a environment.
         """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({
+            'DATA_CSV': TEST_DATA_CSV,
+            'DATA_XML': TEST_DATA_XML
+        })
         self.client = main.app.test_client()
 
     def tearDown(self):
@@ -174,12 +186,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, httplib.OK)
         self.assertEqual(resp.content_type, 'application/json')
         data = json.loads(resp.data)
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), 84)
         self.assertDictEqual(
             data[0],
             {
-                'user_id': 10,
-                'name': 'User 10',
+                'user_id': 141,
+                'name': 'Adam P.',
+                'avatar': 'https://intranet.stxnext.pl/api/images/users/141'
             },
         )
 
@@ -205,7 +218,10 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         """
         Before each test, set up a environment.
         """
-        main.app.config.update({'DATA_CSV': TEST_DATA_CSV})
+        main.app.config.update({
+            'DATA_CSV': TEST_DATA_CSV,
+            'DATA_XML': TEST_DATA_XML
+        })
 
     def tearDown(self):
         """

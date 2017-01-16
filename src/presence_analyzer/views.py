@@ -4,12 +4,15 @@ Defines views.
 """
 
 import calendar
-from flask import abort, redirect, render_template
+from flask import abort
+from flask_mako import render_template
 from jinja2 import TemplateNotFound
 
 from main import app
+from mako.exceptions import TopLevelLookupException
 from utils import (
     get_data,
+    get_data_xml,
     group_by_weekday,
     group_by_weekday_by_start_end,
     jsonify,
@@ -25,7 +28,7 @@ log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 def static_page(page_name):
     try:
         return render_template('{}.html'.format(page_name))
-    except TemplateNotFound:
+    except (TemplateNotFound, TopLevelLookupException):
         abort(404)
 
 
@@ -35,11 +38,18 @@ def users_view():
     """
     Users listing for dropdown.
     """
-    data = get_data()
+    data = get_data_xml()
+
     return [
-        {'user_id': i, 'name': 'User {0}'.format(str(i))}
-        for i in data.keys()
+        {
+            'user_id': value['user_id'],
+            'name': value['name'],
+            'avatar': value['avatar']
+        }
+        for value in data
     ]
+
+    return data
 
 
 @app.route('/api/v1/mean_time_weekday/<int:user_id>', methods=['GET'])

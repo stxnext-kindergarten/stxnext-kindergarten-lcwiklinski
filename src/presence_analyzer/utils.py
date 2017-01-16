@@ -8,8 +8,10 @@ from json import dumps
 from functools import wraps
 from datetime import datetime
 
+from StringIO import StringIO
 from flask import Response
 
+from lxml import etree
 from main import app
 
 import logging
@@ -67,6 +69,52 @@ def get_data():
                 log.debug('Problem with line %d: ', i, exc_info=True)
 
             data.setdefault(user_id, {})[date] = {'start': start, 'end': end}
+
+    return data
+
+
+def get_data_xml():
+    """
+    Extracts presence data from XML file and groups it by user_id.
+
+    It creates structure like this:
+    data = [
+        {
+            'user_id': 141,
+            'name': 'Adam P.',
+            'avatar': 'https://intranet.stxnext.pl/api/images/users/141',
+        },
+        {
+            'user_id': 176,
+            'name': 'Adrian K.',
+            'avatar': 'https://intranet.stxnext.pl/api/images/users/176',
+        },
+    ]
+    """
+    data = []
+    with open(app.config['DATA_XML'], 'r') as xmlfile:
+        xml_data = etree.parse(xmlfile)
+        server = xml_data.find('server')
+        https = server.find('protocol')
+        url = server.find('host')
+
+        users = xml_data.find('users')
+
+        for i, user in enumerate(users.findall('user')):
+            try:
+                user_id = int(user.get('id'))
+                name = user.find('name')
+                avatar = user.find('avatar')
+            except (ValueError, TypeError):
+                log.debug('Problem with line %d: ', i, exc_info=True)
+
+            data.append(
+                {
+                    'user_id': int(user_id),
+                    'name': name.text,
+                    'avatar': https.text + '://' + url.text + avatar.text
+                }
+            )
 
     return data
 

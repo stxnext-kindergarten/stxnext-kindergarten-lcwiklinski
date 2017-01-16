@@ -1,32 +1,41 @@
-{% extends 'base.html' %}
+<%inherit file='base.html'/>
 
-{% block js %}
+<%block name='js'>
 <script type="text/javascript">
     (function($) {
         $(document).ready(function(){
-            var $loading = $('#loading');
+            var $loading = $('#loading'),
+                avatarDict = {};
 
             $.getJSON('/api/v1/users', function(result) {
                 var $dropdown = $('#user-id');
 
                 $.each(result, function(item) {
+                    avatarDict[this.user_id] = this.avatar;
+
                     $dropdown.append($('<option />', {
                        'val': this.user_id,
                        'text': this.name
                     }));
                 });
+
                 $dropdown.show();
                 $loading.hide();
             });
 
             $('#user-id').change(function(){
                 var selectedUser = $('#user-id').val(),
-                    $chartDiv = $('#chart-div');
+                    $chartDiv = $('#chart-div'),
+                    $avatar = $('#avatar');
+
+                $avatar.attr('src', '');
 
                 if(selectedUser) {
                     $loading.show();
                     $chartDiv.hide();
-                    $.getJSON('/api/v1/mean_time_weekday/' + selectedUser,function(result) {
+                    $avatar.hide();
+                    
+                    $.getJSON('/api/v1/mean_time_weekday/' + selectedUser, function(result) {
                         var data = new google.visualization.DataTable(),
                             chart = new google.visualization.ColumnChart($chartDiv[0]),
                             formatter = new google.visualization.DateFormat({
@@ -37,6 +46,8 @@
                                     title: 'Weekday'
                                 }
                             };
+
+                        $avatar.attr('src', avatarDict[selectedUser]);
 
                         $.each(result, function(index, value) {
                             value[1] = parseInterval(value[1]);
@@ -49,6 +60,7 @@
                         formatter.format(data, 1);
 
                         $chartDiv.show();
+                        $avatar.show();
                         $loading.hide();
                         chart.draw(data, options);
                     });
@@ -57,6 +69,6 @@
         });
     })(jQuery);
 </script>
-{% endblock %}
+</%block>
 
-{% block header %}Presence mean time by weekday{% endblock %}
+<%block name='header'>Presence mean time by weekday</%block>

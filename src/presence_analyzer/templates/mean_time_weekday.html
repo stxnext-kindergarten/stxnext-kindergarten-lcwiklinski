@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+<%inherit file='base.html'/>
 
-{% block js %}
+<%block name='js'>
 <script type="text/javascript">
     (function($) {
         $(document).ready(function(){
@@ -57,6 +57,6 @@
         });
     })(jQuery);
 </script>
-{% endblock %}
+</%block>
 
-{% block header %}Presence mean time by weekday{% endblock %}
+<%block name='header'>Presence mean time by weekday</%block>

@@ -4,7 +4,8 @@ Defines views.
 """
 
 import calendar
-from flask import abort, redirect, render_template
+from flask import abort
+from flask_mako import render_template
 from jinja2 import TemplateNotFound
 
 from main import app

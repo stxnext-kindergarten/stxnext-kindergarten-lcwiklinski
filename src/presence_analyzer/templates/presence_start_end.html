@@ -4,28 +4,37 @@
 <script type="text/javascript">
     (function($) {
         $(document).ready(function(){
-            var $loading = $('#loading');
+            var $loading = $('#loading'),
+                avatarById = {};
 
             $.getJSON('/api/v1/users', function(result) {
                 var $dropdown = $('#user-id');
 
-                $.each(result, function(item) {
+                $.each(result, function() {
+                    avatarById[this.user_id] = this.avatar;
+
                     $dropdown.append($('<option />', {
                        'val': this.user_id,
                        'text': this.name
                     }));
                 });
+
                 $dropdown.show();
                 $loading.hide();
             });
 
             $('#user-id').change(function(){
                 var selectedUser = $('#user-id').val(),
-                    $chartDiv = $('#chart-div');
+                    $chartDiv = $('#chart-div'),
+                    $avatar = $('#avatar');
+
+                $avatar.attr('src', '');
 
                 if(selectedUser) {
                     $loading.show();
                     $chartDiv.hide();
+                    $avatar.hide();
+
                     $.getJSON('/api/v1/presence_start_end/' + selectedUser, function(result) {
                         var data = new google.visualization.DataTable(result),
                             chart = new google.visualization.Timeline($chartDiv[0]),
@@ -37,6 +46,8 @@
                                     title: 'Weekday'
                                 }
                             };
+
+                        $avatar.attr('src', avatarById[selectedUser]);
 
                         $.each(result, function(index, value) {
                             value[1] = parseInterval(value[1]);
@@ -58,6 +69,7 @@
                         formatter.format(data, 2);
 
                         $chartDiv.show();
+                        $avatar.show();
                         $loading.hide();
                         chart.draw(data, options);
                     });

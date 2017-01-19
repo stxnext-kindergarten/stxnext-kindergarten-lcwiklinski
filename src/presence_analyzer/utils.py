@@ -4,15 +4,16 @@ Helper functions used in views.
 """
 
 import csv
-from json import dumps
-from functools import wraps
+import logging
 from datetime import datetime
+from functools import wraps
+from json import dumps
 
 from flask import Response
+from lxml import etree
 
 from main import app
 
-import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
@@ -67,6 +68,50 @@ def get_data():
                 log.debug('Problem with line %d: ', i, exc_info=True)
 
             data.setdefault(user_id, {})[date] = {'start': start, 'end': end}
+
+    return data
+
+
+def get_xml_data():
+    """
+    Extracts presence data from XML file and groups it by user_id.
+
+    It creates structure like this:
+    data = [
+        {
+            'user_id': 141,
+            'name': 'Adam P.',
+            'avatar': 'https://intranet.stxnext.pl/api/images/users/141',
+        },
+        {
+            'user_id': 176,
+            'name': 'Adrian K.',
+            'avatar': 'https://intranet.stxnext.pl/api/images/users/176',
+        },
+    ]
+    """
+    with open(app.config['DATA_XML'], 'r') as xmlfile:
+        xml_data = etree.parse(xmlfile)
+        server = xml_data.find('server')
+        link = '{}://{}'.format(
+            server.find('protocol').text,
+            server.find('host').text
+        )
+        users = xml_data.find('users')
+
+        try:
+            data = [
+                {
+                    'user_id': int(user.get('id')),
+                    'name': user.find('name').text,
+                    'avatar': '{}{}'.format(
+                        link,
+                        user.find('avatar').text
+                    )
+                } for i, user in enumerate(users.findall('user'))
+            ]
+        except (ValueError, TypeError):
+            log.debug('Problem with line %d: ', i, exc_info=True)
 
     return data
 

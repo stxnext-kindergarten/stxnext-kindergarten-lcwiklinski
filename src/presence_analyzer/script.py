@@ -4,6 +4,7 @@
 
 import os
 import sys
+import urllib
 from functools import partial
 
 import paste.script.command
@@ -16,6 +17,11 @@ DEPLOY_CFG = etc('deploy.cfg')
 
 DEBUG_INI = etc('debug.ini')
 DEBUG_CFG = etc('debug.cfg')
+
+XML_PATH = os.path.join(
+    'runtime',
+    'data',
+)
 
 _buildout_path = __file__
 for i in range(2 + __name__.count('.')):
@@ -43,7 +49,6 @@ def make_debug(global_conf={}, **conf):
 # bin/flask-ctl shell
 def make_shell():
     """Interactive Flask Shell"""
-    from flask import request
     app = make_app()
     http = app.test_client()
     reqctx = app.test_request_context
@@ -111,3 +116,19 @@ def run():
         _serve('stop', dry_run=dry_run)
 
     werkzeug.script.run()
+
+
+def download_xml():
+    """
+    Downloads users.xml into data directory
+    """
+    try:
+        print 'downloading with urllib'
+        urllib.urlretrieve(
+            'http://sargo.bolt.stxnext.pl/users.xml',
+            '{}/{}'.format(XML_PATH, 'users.xml')
+        )
+    except URLError as e:
+        if e.code == 404:
+            print 'file not found'
+            pass

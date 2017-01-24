@@ -5,6 +5,9 @@ Helper functions used in views.
 
 import csv
 import logging
+import pickle
+import threading
+import time
 from datetime import datetime
 from functools import wraps
 from json import dumps
@@ -15,6 +18,35 @@ from lxml import etree
 from main import app
 
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
+lock = threading.Lock()
+
+cache = {}
+
+def memoize(expire_time=60):
+    """
+    Cache decorator. Return cached data if it's not expired.
+    """
+    lock = threading.Lock()
+
+    def decorator_wrapper(function):
+        lock = threading.Lock()
+
+        def cache_wrapper(*args, **kwargs):
+            key = pickle.dumps((args, kwargs))
+            now = time.time()
+
+            with lock:
+                if key in cache and cache[key]['timeout'] > now:
+                    return cache[key]['value']
+                else:
+                    result = function(*args, **kwargs)
+                    cache[key] = {
+                        'value': result,
+                        'timeout': now + expire_time
+                    }
+                    return result
+        return cache_wrapper
+    return decorator_wrapper
 
 
 def jsonify(function):
@@ -33,6 +65,7 @@ def jsonify(function):
     return inner
 
 
+@memoize(600)
 def get_data():
     """
     Extracts presence data from CSV file and groups it by user_id.

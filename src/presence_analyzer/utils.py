@@ -40,7 +40,7 @@ def cache(expire_time=60):
 
             with lock:
                 if key in cache:
-                    if timeout[key] < now:
+                    if timeout[key] > now:
                         return cache[key]
                 else:
                     rv = function(*args, **kwargs)

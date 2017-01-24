@@ -271,6 +271,22 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             'https://intranet.stxnext.pl/api/images/users/49'
         )
 
+    def test_cache(self):
+        """
+        Test caching decorator.
+        """
+        @utils.cache(2)
+        def f(n):
+            f.count += 1
+
+            return n
+
+        f.count = 0
+        value_timeout = None
+
+        self.assertEqual(f(4), 4)
+        self.assertEqual(f(value_timeout), None)
+
     def test_group_by_weekday(self):
         """
         Test Group by weekday method.

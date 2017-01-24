@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<intranet>
+    <server>
+        <host>intranet.stxnext.pl</host>
+        <port>443</port>
+        <protocol>https</protocol>
+    </server>
+    <users>
+        <user id="141">
+            <avatar>/api/images/users/141</avatar>
+            <name>Adam P.</name>
+        </user>
+        <user id="176">
+            <avatar>/api/images/users/176</avatar>
+            <name>Adrian K.</name>
+        </user>
+        <user id="170">
+            <avatar>/api/images/users/170</avatar>
+            <name>Agata J.</name>
+        </user>
+        <user id="26">
+            <avatar>/api/images/users/26</avatar>
+            <name>Andrzej S.</name>
+        </user>
+        <user id="165">
+            <avatar>/api/images/users/165</avatar>
+            <name>Anna D.</name>
+        </user>
+        <user id="19">
+            <avatar>/api/images/users/19</avatar>
+            <name>Anna K.</name>
+        </user>
+        <user id="36">
+            <avatar>/api/images/users/36</avatar>
+            <name>Anna W.</name>
+        </user>
+        <user id="122">
+            <avatar>/api/images/users/122</avatar>
+            <name>Artur L.</name>
+        </user>
+        <user id="62">
+            <avatar>/api/images/users/62</avatar>
+            <name>Damian G.</name>
+        </user>
+        <user id="68">
+            <avatar>/api/images/users/68</avatar>
+            <name>Damian K.</name>
+        </user>
+        <user id="49">
+            <avatar>/api/images/users/49</avatar>
+            <name>Dariusz Ś.</name>
+        </user>
+        <user id="151">
+            <avatar>/api/images/users/151</avatar>
+            <name>Dawid J.</name>
+        </user>
+        <user id="149">
+            <avatar>/api/images/users/149</avatar>
+            <name>Dawid K.</name>
+        </user>
+        <user id="124">
+            <avatar>/api/images/users/124</avatar>
+            <name>Dawid Ż.</name>
+        </user>
+        <user id="155">
+            <avatar>/api/images/users/155</avatar>
+            <name>Filip K.</name>
+        </user>
+        <user id="64">
+            <avatar>/api/images/users/64</avatar>
+            <name>Jakub K.</name>
+        </user>
+        <user id="156">
+            <avatar>/api/images/users/156</avatar>
+            <name>Jarosław Ś.</name>
+        </user>
+        <user id="186">
+            <avatar>/api/images/users/186</avatar>
+            <name>Jędrzej Ch.</name>
+        </user>
+        <user id="162">
+            <avatar>/api/images/users/162</avatar>
+            <name>Joanna M.</name>
+        </user>
+        <user id="148">
+            <avatar>/api/images/users/148</avatar>
+            <name>Kacper K.</name>
+        </user>
+        <user id="130">
+            <avatar>/api/images/users/130</avatar>
+            <name>Kajetan O.</name>
+        </user>
+        <user id="16">
+            <avatar>/api/images/users/16</avatar>
+            <name>Kamil K.</name>
+        </user>
+        <user id="139">
+            <avatar>/api/images/users/139</avatar>
+            <name>Kamil M.</name>
+        </user>
+        <user id="67">
+            <avatar>/api/images/users/67</avatar>
+            <name>Kamil S.</name>
+        </user>
+        <user id="150">
+            <avatar>/api/images/users/150</avatar>
+            <name>Kamil Ż.</name>
+        </user>
+        <user id="167">
+            <avatar>/api/images/users/167</avatar>
+            <name>Karol W.</name>
+        </user>
+        <user id="175">
+            <avatar>/api/images/users/175</avatar>
+            <name>Klaudia P.</name>
+        </user>
+        <user id="54">
+            <avatar>/api/images/users/54</avatar>
+            <name>Konrad R.</name>
+        </user>
+        <user id="111">
+            <avatar>/api/images/users/111</avatar>
+            <name>Krzysztof D.</name>
+        </user>
+        <user id="183">
+            <avatar>/api/images/users/183</avatar>
+            <name>Krzysztof K.</name>
+        </user>
+        <user id="138">
+            <avatar>/api/images/users/138</avatar>
+            <name>Krzysztof K.</name>
+        </user>
+        <user id="48">
+            <avatar>/api/images/users/48</avatar>
+            <name>Krzysztof S.</name>
+        </user>
+        <user id="31">
+            <avatar>/api/images/users/31</avatar>
+            <name>Księgowa</name>
+        </user>
+        <user id="11">
+            <avatar>/api/images/users/11</avatar>
+            <name>Maciej D.</name>
+        </user>
+        <user id="101">
+            <avatar>/api/images/users/101</avatar>
+            <name>Maciej S.</name>
+        </user>
+        <user id="10">
+            <avatar>/api/images/users/10</avatar>
+            <name>Maciej Z.</name>
+        </user>
+        <user id="147">
+            <avatar>/api/images/users/147</avatar>
+            <name>Malwina N.</name>
+        </user>
+        <user id="184">
+            <avatar>/api/images/users/184</avatar>
+            <name>Malwina S.</name>
+        </user>
+        <user id="27">
+            <avatar>/api/images/users/27</avatar>
+            <name>Marcin N.</name>
+        </user>
+        <user id="178">
+            <avatar>/api/images/users/178</avatar>
+            <name>Marcin O.</name>
+        </user>
+        <user id="23">
+            <avatar>/api/images/users/23</avatar>
+            <name>Marek B.</name>
+        </user>
+        <user id="20">
+            <avatar>/api/images/users/20</avatar>
+            <name>Marek P.</name>
+        </user>
+        <user id="173">
+            <avatar>/api/images/users/173</avatar>
+            <name>Mariusz J.</name>
+        </user>
+        <user id="126">
+            <avatar>/api/images/users/126</avatar>
+            <name>Mariusz O.</name>
+        </user>
+        <user id="174">
+            <avatar>/api/images/users/174</avatar>
+            <name>Mariusz Z.</name>
+        </user>
+        <user id="152">
+            <avatar>/api/images/users/152</avatar>
+            <name>Mateusz G.</name>
+        </user>
+        <user id="63">
+            <avatar>/api/images/users/63</avatar>
+            <name>Mateusz K.</name>
+        </user>
+        <user id="187">
+            <avatar>/api/images/users/187</avatar>
+            <name>Mateusz T.</name>
+        </user>
+        <user id="153">
+            <avatar>/api/images/users/153</avatar>
+            <name>Michał J.</name>
+        </user>
+        <user id="179">
+            <avatar>/api/images/users/179</avatar>
+            <name>Michał K.</name>
+        </user>
+        <user id="142">
+            <avatar>/api/images/users/142</avatar>
+            <name>Michał K.</name>
+        </user>
+        <user id="131">
+            <avatar>/api/images/users/131</avatar>
+            <name>Michał K.</name>
+        </user>
+        <user id="159">
+            <avatar>/api/images/users/159</avatar>
+            <name>Michał R.</name>
+        </user>
+        <user id="24">
+            <avatar>/api/images/users/24</avatar>
+            <name>Miłosz Z.</name>
+        </user>
+        <user id="177">
+            <avatar>/api/images/users/177</avatar>
+            <name>Natalia Z.</name>
+        </user>
+        <user id="144">
+            <avatar>/api/images/users/144</avatar>
+            <name>Neysa K.</name>
+        </user>
+        <user id="160">
+            <avatar>/api/images/users/160</avatar>
+            <name>Olga K.</name>
+        </user>
+        <user id="83">
+            <avatar>/api/images/users/83</avatar>
+            <name>Oliwia G.</name>
+        </user>
+        <user id="12">
+            <avatar>/api/images/users/12</avatar>
+            <name>Patryk G.</name>
+        </user>
+        <user id="157">
+            <avatar>/api/images/users/157</avatar>
+            <name>Paweł K.</name>
+        </user>
+        <user id="66">
+            <avatar>/api/images/users/66</avatar>
+            <name>Paweł Ł.</name>
+        </user>
+        <user id="33">
+            <avatar>/api/images/users/33</avatar>
+            <name>Paweł M.</name>
+        </user>
+        <user id="158">
+            <avatar>/api/images/users/158</avatar>
+            <name>Piotr R.</name>
+        </user>
+        <user id="137">
+            <avatar>/api/images/users/137</avatar>
+            <name>Piotr R.</name>
+        </user>
+        <user id="84">
+            <avatar>/api/images/users/84</avatar>
+            <name>Przemysław K.</name>
+        </user>
+        <user id="25">
+            <avatar>/api/images/users/25</avatar>
+            <name>Radosław J.</name>
+        </user>
+        <user id="185">
+            <avatar>/api/images/users/185</avatar>
+            <name>Rafał G.</name>
+        </user>
+        <user id="112">
+            <avatar>/api/images/users/112</avatar>
+            <name>Roman L.</name>
+        </user>
+        <user id="169">
+            <avatar>/api/images/users/169</avatar>
+            <name>Sara C.</name>
+        </user>
+        <user id="29">
+            <avatar>/api/images/users/29</avatar>
+            <name>Sebastian K.</name>
+        </user>
+        <user id="171">
+            <avatar>/api/images/users/171</avatar>
+            <name>Sławomir P.</name>
+        </user>
+        <user id="30">
+            <avatar>/api/images/users/30</avatar>
+            <name>STX Next Developer</name>
+        </user>
+        <user id="115">
+            <avatar>/api/images/users/115</avatar>
+            <name>Szymon Ł.</name>
+        </user>
+        <user id="22">
+            <avatar>/api/images/users/22</avatar>
+            <name>Szymon P.</name>
+        </user>
+        <user id="58">
+            <avatar>/api/images/users/58</avatar>
+            <name>Tomasz L.</name>
+        </user>
+        <user id="13">
+            <avatar>/api/images/users/13</avatar>
+            <name>Tomasz M.</name>
+        </user>
+        <user id="118">
+            <avatar>/api/images/users/118</avatar>
+            <name>Tomasz M.</name>
+        </user>
+        <user id="17">
+            <avatar>/api/images/users/17</avatar>
+            <name>Tomasz S.</name>
+        </user>
+        <user id="166">
+            <avatar>/api/images/users/166</avatar>
+            <name>Tomasz W.</name>
+        </user>
+        <user id="146">
+            <avatar>/api/images/users/146</avatar>
+            <name>Waldemar S.</name>
+        </user>
+        <user id="15">
+            <avatar>/api/images/users/15</avatar>
+            <name>Wojciech L.</name>
+        </user>
+        <user id="121">
+            <avatar>/api/images/users/121</avatar>
+            <name>Łukasz J.</name>
+        </user>
+        <user id="154">
+            <avatar>/api/images/users/154</avatar>
+            <name>Łukasz K.</name>
+        </user>
+        <user id="189">
+            <avatar>/api/images/users/189</avatar>
+            <name>Karol Ż.</name>
+        </user>
+    </users>
+</intranet>

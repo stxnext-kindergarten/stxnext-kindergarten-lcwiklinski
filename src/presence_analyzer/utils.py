@@ -4,17 +4,54 @@ Helper functions used in views.
 """
 
 import csv
-from json import dumps
-from functools import wraps
+import logging
+import threading
+import time
 from datetime import datetime
+from functools import wraps
+from json import dumps
 
 from flask import Response
+from lxml import etree
 
 from main import app
 
-import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
+lock = threading.Lock()
 
+
+def cache(expire_time=60):
+    """
+    Cache decorator. Return cached data if it's not expired.
+    """
+    cache = {}
+    timeout = {}
+
+    lock = threading.Lock()
+
+    def decorator_wrapper(function):
+        lock = threading.Lock()
+
+        def cache_wrapper(*args, **kwargs):
+            if kwargs:
+                key = args, frozenset(kwargs.items())
+            else:
+                key = args
+            now = time.time()
+
+            with lock:
+                if key in cache:
+                    if timeout[key] > now:
+                        return cache[key]
+                else:
+                    rv = function(*args, **kwargs)
+                    cache[key] = rv
+                    timeout[key] = now + expire_time
+                    return rv
+
+        return cache_wrapper
+
+    return decorator_wrapper
 
 def jsonify(function):
     """
@@ -32,6 +69,7 @@ def jsonify(function):
     return inner
 
 
+@cache(600)
 def get_data():
     """
     Extracts presence data from CSV file and groups it by user_id.
@@ -67,6 +105,51 @@ def get_data():
                 log.debug('Problem with line %d: ', i, exc_info=True)
 
             data.setdefault(user_id, {})[date] = {'start': start, 'end': end}
+
+    return data
+
+
+@cache(600)
+def get_xml_data():
+    """
+    Extracts presence data from XML file and groups it by user_id.
+
+    It creates structure like this:
+    data = [
+        {
+            'user_id': 141,
+            'name': 'Adam P.',
+            'avatar': 'https://intranet.stxnext.pl/api/images/users/141',
+        },
+        {
+            'user_id': 176,
+            'name': 'Adrian K.',
+            'avatar': 'https://intranet.stxnext.pl/api/images/users/176',
+        },
+    ]
+    """
+    with open(app.config['DATA_XML'], 'r') as xmlfile:
+        xml_data = etree.parse(xmlfile)
+        server = xml_data.find('server')
+        link = '{}://{}'.format(
+            server.find('protocol').text,
+            server.find('host').text
+        )
+        users = xml_data.find('users')
+
+        try:
+            data = [
+                {
+                    'user_id': int(user.get('id')),
+                    'name': user.find('name').text,
+                    'avatar': '{}{}'.format(
+                        link,
+                        user.find('avatar').text
+                    )
+                } for i, user in enumerate(users.findall('user'))
+            ]
+        except (ValueError, TypeError):
+            log.debug('Problem with line %d: ', i, exc_info=True)
 
     return data
 

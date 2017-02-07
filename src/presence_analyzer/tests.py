@@ -8,6 +8,7 @@ import datetime
 import httplib
 import json
 import os.path
+import time
 import unittest
 
 import main
@@ -241,6 +242,75 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         Get rid of unused objects after each test.
         """
         pass
+
+    def test_cache(self):
+        """
+        Test caching decorator.
+        """
+        utils.get_data()
+        timeout1 = utils.cache['((t(dp0\ntp1\n.']['timeout']
+
+        self.assertEqual(
+            utils.cache['((t(dp0\ntp1\n.']['value'],
+            {
+                10: {
+                    datetime.date(2013, 9, 10):
+                        {
+                            'start': datetime.time(9, 39, 5),
+                            'end': datetime.time(17, 59, 52)
+                        },
+                    datetime.date(2013, 9, 12):
+                        {
+                            'start': datetime.time(10, 48, 46),
+                            'end': datetime.time(17, 23, 51)
+                        },
+                    datetime.date(2013, 9, 11):
+                        {
+                            'start': datetime.time(9, 19, 52),
+                            'end': datetime.time(16, 7, 37)
+                        }
+                },
+                11: {
+                    datetime.date(2013, 9, 13):
+                        {
+                            'start': datetime.time(13, 16, 56),
+                            'end': datetime.time(15, 4, 2)
+                        },
+                    datetime.date(2013, 9, 12):
+                        {
+                            'start': datetime.time(10, 18, 36),
+                            'end': datetime.time(16, 41, 25)
+                        },
+                    datetime.date(2013, 9, 11):
+                        {
+                            'start': datetime.time(9, 13, 26),
+                            'end': datetime.time(16, 15, 27)
+                        },
+                    datetime.date(2013, 9, 10):
+                        {
+                            'start': datetime.time(9, 19, 50),
+                            'end': datetime.time(13, 55, 54)
+                        },
+                    datetime.date(2013, 9, 9):
+                        {
+                            'start': datetime.time(9, 12, 14),
+                            'end': datetime.time(15, 54, 17)
+                        },
+                    datetime.date(2013, 9, 5):
+                        {
+                            'start': datetime.time(9, 28, 8),
+                            'end': datetime.time(15, 51, 27)
+                        }
+                }
+            }
+        )
+        self.assertNotEqual(utils.cache, {})
+
+        utils.get_data()
+        timeout2 = utils.cache['((t(dp0\ntp1\n.']['timeout']
+
+        self.assertEqual(timeout1, timeout2)
+
 
     def test_get_data(self):
         """

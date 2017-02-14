@@ -8,12 +8,9 @@ import datetime
 import httplib
 import json
 import os.path
-import time
 import unittest
 
-import main
-import utils
-import views
+from presence_analyzer import main, utils, views
 
 TEST_DATA_CSV = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -60,7 +57,7 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         """
         Test main page load.
         """
-        resp = self.client.get('/')
+        resp = self.client.get('/', follow_redirects=True)
 
         self.assertEqual(resp.status_code, httplib.OK)
 
@@ -92,8 +89,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             '/api/v1/presence_weekday/10',
             content_type='application/json',
         )
+        wrong_resp = self.client.get(
+            '/api/v1/presence_weekday/wrong',
+            content_type='application/json',
+        )
 
         self.assertEqual(resp.status_code, httplib.OK)
+        self.assertEqual(wrong_resp.status_code, httplib.NOT_FOUND)
 
         weekdays = [
             ['Weekday', 'Presence (s)'],
@@ -108,17 +110,6 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
         data = json.loads(resp.data)
 
         self.assertListEqual(weekdays, data)
-
-    def test_weekday_parameter_incorrect(self):
-        """
-        Test presence by weekday api route parameter is incorrect.
-        """
-        resp = self.client.get(
-            '/api/v1/presence_weekday/wrong',
-            content_type='application/json',
-        )
-
-        self.assertEqual(resp.status_code, httplib.NOT_FOUND)
 
     def test_presence_mean_time_header(self):
         """
@@ -137,8 +128,13 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             '/api/v1/mean_time_weekday/10',
             content_type='application/json',
         )
+        wrong_resp = self.client.get(
+            '/api/v1/mean_time_weekday/wrong',
+            content_type='application/json',
+        )
 
         self.assertEqual(resp.status_code, httplib.OK)
+        self.assertEqual(wrong_resp.status_code, httplib.NOT_FOUND)
 
         weekdays = [
             ['Mon', 0],
@@ -180,16 +176,39 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
 
         self.assertListEqual(result, data)
 
-    def test_mean_time_parameter_incorrect(self):
+    def test_years_and_month(self):
         """
-        Test presence by weekday api route parameter is incorrect.
+        Test result of available years and months for dropdown.
         """
-        resp = self.client.get(
-            '/api/v1/mean_time_weekday/wrong',
+        api = self.client.get(
+            '/api/v1/years_and_months/',
             content_type='application/json',
         )
+        result = [
+            ['2013 - September', 9, 2013]
+        ]
+        data = json.loads(api.data)
 
-        self.assertEqual(resp.status_code, httplib.NOT_FOUND)
+        self.assertEqual(api.status_code, httplib.OK)
+        self.assertEqual(result, data)
+
+    def test_top_five_view(self):
+        """
+        Test result of available top five work times
+        in specific year and month.
+        """
+        api = self.client.get(
+            '/api/v1/top_five/2011/0',
+        )
+        data = []
+
+        result = utils.top_five(data)
+
+        self.assertEqual(api.status_code, httplib.OK)
+        self.assertEqual(
+            result,
+            []
+        )
 
     def test_api_users(self):
         """
@@ -341,6 +360,61 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             'https://intranet.stxnext.pl/api/images/users/49'
         )
 
+    def test_get_year_and_months(self):
+        """
+        Test getting year and month from.
+        """
+        data = utils.get_year_and_months()
+
+        self.assertIsInstance(data, list)
+        self.assertItemsEqual(
+            data[0], ['date', 'month', 'year']
+        )
+
+    def test_get_data_by_date(self):
+        """
+        Test wokrtime for user_id in date.
+        """
+        data = utils.get_data_by_date()
+
+        self.assertItemsEqual(
+            data[datetime.date(2013, 9, 13)], {11: 6426}
+        )
+
+    def test_top_five(self):
+        """
+        Test top five work time for users.
+        """
+        data = [
+            {
+                10: 29778,
+                11: 27227,
+                13: 29824,
+                14: 27296,
+                15: 27276,
+                16: 27633,
+                17: 29638,
+            },
+            {
+                10: 28668,
+                11: 54024,
+                13: 30566,
+                14: 25617,
+                15: 30480,
+                16: 29588,
+                17: 32451,
+                18: 29634,
+                19: 28854,
+            }
+        ]
+        result = utils.top_five(data)
+
+        self.assertIsInstance(data, list)
+        self.assertEqual(
+            result,
+            [(11, 81251), (17, 62089), (13, 60390), (10, 58446), (15, 57756)]
+        )
+
     def test_group_by_weekday(self):
         """
         Test Group by weekday method.
@@ -365,7 +439,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             [[], [30047], [24465], [23705], [], [], [],]
         )
 
-    def test_group_by_weekday_by_start_end(self):
+    def test_group_by_weekday_start_end(self):
         """
         Test Group by weekday method.
         """

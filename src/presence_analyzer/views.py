@@ -4,28 +4,42 @@ Defines views.
 """
 
 import calendar
-from flask import abort
+import logging
+
+from flask import abort, redirect
 from flask_mako import render_template
 from jinja2 import TemplateNotFound
-
-from main import app
 from mako.exceptions import TopLevelLookupException
-from utils import (
+
+from presence_analyzer.main import app
+from presence_analyzer.utils import (
     get_data,
+    get_data_by_date,
     get_xml_data,
+    get_year_and_months,
     group_by_weekday,
     group_by_weekday_by_start_end,
     jsonify,
     mean,
+    top_five
 )
 
-import logging
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
-@app.route('/', defaults={'page_name' : 'presence_weekday'})
+@app.route('/')
+def index():
+    """
+    Redirect to main page.
+    """
+    return redirect('presence_weekday')
+
+
 @app.route('/<string:page_name>')
 def static_page(page_name):
+    """
+    Template generator.
+    """
     try:
         return render_template('{}.html'.format(page_name))
     except (TemplateNotFound, TopLevelLookupException):
@@ -48,8 +62,6 @@ def users_view():
         }
         for value in data
     ]
-
-    return data
 
 
 @app.route('/api/v1/mean_time_weekday/<int:user_id>', methods=['GET'])
@@ -91,6 +103,44 @@ def presence_weekday_view(user_id):
 
     result.insert(0, ('Weekday', 'Presence (s)'))
     return result
+
+
+@app.route('/api/v1/years_and_months/', methods=['GET'])
+@jsonify
+def presence_years_and_months():
+    """
+    Returns work time for users grouped by month.
+    Return list of dicts, eg:
+    [
+         ['2011 - December', 12, 2011],
+         ['2011 - July', 7, 2011],
+         [...],
+    ]
+    """
+    data = get_year_and_months()
+    result = [
+        list(date) for date in
+        set(tuple(date.values()) for date in data)
+    ]
+
+    return result
+
+
+@app.route('/api/v1/top_five/<int:year>/<int:month>', methods=['GET'])
+@jsonify
+def top_five_worktime(year, month):
+    """
+    Returns top 5 work time for users grouped by date.
+    """
+    worktime = get_data_by_date()
+    result = [
+        (values)
+        for date, values in worktime.iteritems()
+        if date.year == year and date.month == month
+    ]
+
+    return top_five(result)
+
 
 @app.route('/api/v1/presence_start_end/<int:user_id>', methods=['GET'])
 @jsonify

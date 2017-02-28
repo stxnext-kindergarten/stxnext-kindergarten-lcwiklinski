@@ -1,0 +1,94 @@
+<%inherit file='base.html'/>
+
+<%block name='js'>
+    <script type="text/javascript">
+        function formatSeconds(seconds) {
+            var minutes = (seconds / 60);
+            var hours = (minutes / 60);
+
+            return parseInt(hours.toFixed(2));
+        }
+
+        $(function() {
+            var $loading = $('#loading'),
+                nameAndAvatarById = {};
+
+            $.getJSON('/api/v1/users', function (result) {
+                $.each(result, function () {
+                    nameAndAvatarById[this.user_id] = [this.name, this.avatar];
+                });
+            });
+
+            $.getJSON('/api/v1/years_and_months/', function (result) {
+                var $dropdown = $('#user-id');
+
+                $.each(result, function (index, values) {
+                    $dropdown.append($('<option />', {
+                        'val': values[2] + '-' + values[1],
+                        'text': values[0]
+                    }))
+                });
+
+                $dropdown.show();
+                $loading.hide();
+            });
+
+            $('#user-id').change(function () {
+                var selectedUser = $('#user-id').val(),
+                    $chartDiv = $('#chart-div'),
+                    $avatar = $('#avatar'),
+                    date = selectedUser.replace('-', '/');
+
+                $avatar.attr('src', '');
+
+                if (selectedUser) {
+                    $loading.show();
+                    $chartDiv.hide();
+                    $avatar.hide();
+
+                    $.getJSON('/api/v1/top_five/' + date, function (result) {
+                        var chart,
+                            data,
+                            chartValues = [],
+                            colors = ['#b9f2ff', '#e5e4e2', '#ffd700', '#c0c0c0', '#cd7f32'],
+                            options = {
+                                tooltip: {isHtml: true}
+                            };
+
+                        $.each(result, function (index, item) {
+                            var userData = nameAndAvatarById[item[0]],
+                                time = formatSeconds(item[1]),
+                                color = colors[index],
+                                tooltip = [
+                                    'Time: ',
+                                    time,
+                                    '<br />',
+                                    '<img src="' + userData[1] + '">'
+                                ].join ('');
+
+                            chartValues[index] = [
+                                userData[0], time, color, tooltip
+                            ];
+                        });
+                        chartValues.unshift([
+                            {type: 'string', label: 'User'},
+                            {type: 'number', label: 'Time in (h)', p: {html: true}},
+                            {type: 'string', role: 'style'},
+                            {label: 'Avatar', role: 'tooltip', p: {html: true}}
+                        ]);
+
+                        data = google.visualization.arrayToDataTable(chartValues);
+                        chart = new google.visualization.ColumnChart($chartDiv[0]);
+
+                        $chartDiv.show();
+                        $avatar.show();
+                        $loading.hide();
+                        chart.draw(data, options);
+                    });
+                }
+            });
+        });
+    </script>
+</%block>
+
+<%block name='header'>Top 5 work hours by month of the year.</%block>

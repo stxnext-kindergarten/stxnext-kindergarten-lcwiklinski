@@ -8,17 +8,20 @@ import logging
 import pickle
 import threading
 import time
+
+from collections import Counter, defaultdict
 from datetime import datetime
 from functools import wraps
 from json import dumps
+from operator import itemgetter
 
 from flask import Response
 from lxml import etree
 
-from main import app
+from presence_analyzer.main import app
 
 log = logging.getLogger(__name__)  # pylint: disable=invalid-name
-lock = threading.Lock()
+LOCK = threading.Lock()
 
 cache = {}
 
@@ -26,12 +29,17 @@ def memoize(expire_time=60):
     """
     Cache decorator. Return cached data if it's not expired.
     """
-    lock = threading.Lock()
 
     def decorator_wrapper(function):
+        """
+        Passing function as parameter.
+        """
         lock = threading.Lock()
 
         def cache_wrapper(*args, **kwargs):
+            """
+            Operates on accepted *args and **kwargs.
+            """
             key = pickle.dumps((args, kwargs))
             now = time.time()
 
@@ -88,10 +96,6 @@ def get_data():
     with open(app.config['DATA_CSV'], 'r') as csvfile:
         presence_reader = csv.reader(csvfile, delimiter=',')
         for i, row in enumerate(presence_reader):
-            if len(row) != 4:
-                # ignore header and footer lines
-                continue
-
             try:
                 user_id = int(row[0])
                 date = datetime.strptime(row[1], '%Y-%m-%d').date()
@@ -103,6 +107,72 @@ def get_data():
             data.setdefault(user_id, {})[date] = {'start': start, 'end': end}
 
     return data
+
+
+def get_year_and_months():
+    """
+    Extracts presence data from CSV file and takes unique years and months.
+
+    Returns: list of dicts eg:
+    [
+        {
+            'year': 2011,
+            'month': 8,
+            'date': '2011 - August'
+        },
+        {
+            'year': 2013,
+            'month': 8,
+            'date': '2013 - August'
+        }
+    ]
+    """
+    data = []
+    with open(app.config['DATA_CSV'], 'r') as csvfile:
+        presence_reader = csv.reader(csvfile, delimiter=',')
+        for i, row in enumerate(presence_reader):
+            try:
+                date = datetime.strptime(row[1], '%Y-%m-%d').date()
+            except (ValueError, TypeError):
+                log.debug('Problem with line %d: ', i, exc_info=True)
+
+            data.append({
+                'year': date.year,
+                'month': date.month,
+                'date': date.strftime('%Y - %B')
+            })
+
+    return data
+
+
+def get_data_by_date():
+    """
+    Converts representation of data return from get_data().
+
+    Returns: Dict of dicts eg:
+    {
+        datetime.date(2013, 10, 1): {
+            10: 31395,
+            12: 45863
+        },
+        (...)
+    }
+    """
+    data = get_data()
+    result = {}
+
+    for user_id, values in data.iteritems():
+        for date, worktime in values.iteritems():
+            if date in result:
+                result[date][user_id] = interval(
+                    worktime['start'], worktime['end']
+                )
+            else:
+                result[date] = {
+                    user_id: interval(worktime['start'], worktime['end'])
+                }
+
+    return result
 
 
 def get_xml_data():
@@ -153,12 +223,31 @@ def group_by_weekday(items):
     """
     Groups presence entries by weekday.
     """
-    result = [[] for i in range(7)] # one list for every day of the week.
+    result = [[] for i in range(7)]  # one list for every day of the week.
     for date in items:
         start = items[date]['start']
         end = items[date]['end']
         result[date.weekday()].append(interval(start, end))
+
     return result
+
+
+def top_five(items):
+    """
+    Summs month top 5 worktime for user.
+    """
+    month_total = defaultdict(list)
+    for values in items:
+        for user, worktime in values.iteritems():
+            if user not in month_total:
+                month_total[user] = 0
+
+            month_total[user] += worktime
+
+    result = dict(Counter(month_total).most_common(5))
+
+    return sorted(result.items(), key=itemgetter(1), reverse=True)
+
 
 def group_by_weekday_by_start_end(items):
     """

@@ -1,9 +1,8 @@
 <%inherit file='base.html'/>
 
 <%block name='js'>
-<script type="text/javascript">
-    (function($) {
-        $(document).ready(function(){
+    <script type="text/javascript">
+        $(function() {
             var $loading = $('#loading'),
                 avatarById = {};
 
@@ -76,8 +75,7 @@
                 }
             });
         });
-    })(jQuery);
-</script>
+    </script>
 </%block>
 
 <%block name='header'>Presence start-end weekday</%block>

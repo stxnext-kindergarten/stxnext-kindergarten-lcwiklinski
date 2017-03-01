@@ -4,6 +4,7 @@ Defines views.
 """
 
 import calendar
+import locale
 import logging
 from operator import itemgetter
 
@@ -53,16 +54,20 @@ def users_view():
     """
     Users listing for dropdown.
     """
+    locale.setlocale(locale.LC_COLLATE, 'pl_PL.UTF-8')
     data = get_xml_data()
 
-    return [
-        {
-            'user_id': value['user_id'],
-            'name': value['name'],
-            'avatar': value['avatar']
-        }
-        for value in data
-    ]
+    return sorted(
+        [
+            {
+                'user_id': value['user_id'],
+                'name': value['name'],
+                'avatar': value['avatar']
+            }
+            for value in data
+        ],
+        key=itemgetter('name'), cmp=locale.strcoll
+    )
 
 
 @app.route('/api/v1/mean_time_weekday/<int:user_id>', methods=['GET'])

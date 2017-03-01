@@ -5,6 +5,7 @@ Defines views.
 
 import calendar
 import logging
+from operator import itemgetter
 
 from flask import abort, redirect
 from flask_mako import render_template
@@ -112,16 +113,19 @@ def presence_years_and_months():
     Returns work time for users grouped by month.
     Return list of dicts, eg:
     [
-         ['2011 - December', 12, 2011],
-         ['2011 - July', 7, 2011],
-         [...],
+        ['2013 - September', 9, 2013],
+        ['2013 - August', 8, 2013]
+        [...],
     ]
     """
     data = get_year_and_months()
-    result = [
-        list(date) for date in
-        set(tuple(date.values()) for date in data)
-    ]
+    result = sorted(
+        [
+            date for date in
+            set(tuple(date.values()) for date in data)
+        ],
+        key=itemgetter(2, 1), reverse=True
+    )
 
     return result
 

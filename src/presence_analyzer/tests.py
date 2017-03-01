@@ -228,6 +228,22 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
                 'avatar': 'https://intranet.stxnext.pl/api/images/users/141'
             },
         )
+        self.assertDictEqual(
+            data[16],
+            {
+                'user_id': 156,
+                'name': 'Jarosław Ś.',
+                'avatar': 'https://intranet.stxnext.pl/api/images/users/156'
+            }
+        )
+        self.assertDictEqual(
+            data[17],
+            {
+                'user_id': 186,
+                'name': 'Jędrzej Ch.',
+                'avatar': 'https://intranet.stxnext.pl/api/images/users/186'
+            }
+        )
 
     def test_static_page(self):
         """

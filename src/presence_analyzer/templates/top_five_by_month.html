@@ -36,15 +36,12 @@
             $('#user-id').change(function () {
                 var selectedUser = $('#user-id').val(),
                     $chartDiv = $('#chart-div'),
-                    $avatar = $('#avatar'),
                     date = selectedUser.replace('-', '/');
 
-                $avatar.attr('src', '');
+                $chartDiv.hide();
 
                 if (selectedUser) {
                     $loading.show();
-                    $chartDiv.hide();
-                    $avatar.hide();
 
                     $.getJSON('/api/v1/top_five/' + date, function (result) {
                         var chart,
@@ -52,7 +49,8 @@
                             chartValues = [],
                             colors = ['#b9f2ff', '#e5e4e2', '#ffd700', '#c0c0c0', '#cd7f32'],
                             options = {
-                                tooltip: {isHtml: true}
+                                tooltip: {isHtml: true},
+                                width: 750
                             };
 
                         $.each(result, function (index, item) {
@@ -72,7 +70,7 @@
                         });
                         chartValues.unshift([
                             {type: 'string', label: 'User'},
-                            {type: 'number', label: 'Time in (h)', p: {html: true}},
+                            {type: 'number', label: 'Time in \n(h)', p: {html: true}},
                             {type: 'string', role: 'style'},
                             {label: 'Avatar', role: 'tooltip', p: {html: true}}
                         ]);
@@ -80,13 +78,12 @@
                         data = google.visualization.arrayToDataTable(chartValues);
                         chart = new google.visualization.ColumnChart($chartDiv[0]);
 
-                        $chartDiv.show();
-                        $avatar.show();
-                        $loading.hide();
                         chart.draw(data, options);
-                    });
-                } else {
-                    $chartDiv.hide();
+                    })
+                        .success(function () {
+                            $chartDiv.show();
+                            $loading.hide();
+                        })
                 }
             });
         });

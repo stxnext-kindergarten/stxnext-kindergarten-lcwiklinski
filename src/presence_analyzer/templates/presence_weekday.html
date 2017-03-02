@@ -25,29 +25,36 @@
             $('#user-id').change(function(){
                 var selectedUser = $('#user-id').val(),
                     $chartDiv = $('#chart-div'),
-                    $avatar = $('#avatar');
+                    $errorDiv = $('#error-msg');
 
-                $avatar.attr('src', '');
+                $errorDiv.hide();
+                $chartDiv.hide();
+                avatarLoad();
 
                 if(selectedUser) {
                     $loading.show();
                     $chartDiv.hide();
-                    $avatar.hide();
+                    $errorDiv.hide();
 
                     $.getJSON('/api/v1/presence_weekday/' + selectedUser, function(result) {
                         var data = new google.visualization.arrayToDataTable(result),
                             chart = new google.visualization.PieChart($chartDiv[0]),
-                            options = {};
+                            options = {
+                                width: 750
+                            };
 
-                        $avatar.attr('src', avatarById[selectedUser]);
-
-                        $chartDiv.show();
-                        $avatar.show();
-                        $loading.hide();
                         chart.draw(data, options);
-                    });
-                } else {
-                    $chartDiv.hide();
+                    })
+                        .success(function () {
+                            $chartDiv.show();
+                            $loading.hide();
+                        })
+                        .error(function () {
+                            $errorDiv.text('User has no data.').show();
+                        })
+                        .complete(function () {
+                            avatarLoad(avatarById[selectedUser]).show();
+                        });
                 }
             });
         });

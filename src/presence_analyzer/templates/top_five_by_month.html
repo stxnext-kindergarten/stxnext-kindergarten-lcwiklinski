@@ -54,18 +54,24 @@
                             };
 
                         $.each(result, function (index, item) {
-                            var userData = nameAndAvatarById[item[0]],
+                            var validateUser = function () {
+                                    var user = nameAndAvatarById[item[0]];
+                                    if (!user) {
+                                        return ['Unnamed', 'https://intranet.stxnext.pl/api/images/users/filler'];
+                                    }
+                                    return user;
+                                },
                                 time = formatSeconds(item[1]),
                                 color = colors[index],
                                 tooltip = [
                                     'Time: ',
                                     time,
                                     '<br />',
-                                    '<img src="' + userData[1] + '">'
+                                    '<img src="' + validateUser()[1] + '">'
                                 ].join ('');
 
                             chartValues[index] = [
-                                userData[0], time, color, tooltip
+                                validateUser()[0], time, color, tooltip
                             ];
                         });
                         chartValues.unshift([

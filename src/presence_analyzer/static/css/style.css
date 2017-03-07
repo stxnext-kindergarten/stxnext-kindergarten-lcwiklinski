@@ -10,7 +10,7 @@ body {
 }
 
 #content {
-    border: 1px solid #aaa;
+    border: 1px solid #000;
     background-color: #fff;
     clear: both;
     padding: 0 1em;
@@ -22,15 +22,17 @@ body {
 }
 
 #header ul {
+    display: table;
     list-style: none;
     padding: 0;
     margin: 0;
+    width: 100%;
 }
 
 #header li {
-    float: left;
     border: 1px solid #bbb;
     border-bottom-width: 0;
+    display: table-cell;
     margin: 0;
 }
 
@@ -48,13 +50,13 @@ body {
 }
 
 #header .selected {
-    border-color: black;
+    border-color: #000;
 }
 
 #header .selected a {
     position: relative;
     top: 1px;
     background: white;
-    color: black;
+    color: #000;
     font-weight: bold;
 }

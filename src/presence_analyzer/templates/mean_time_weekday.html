@@ -25,14 +25,14 @@
             $('#user-id').change(function(){
                 var selectedUser = $('#user-id').val(),
                     $chartDiv = $('#chart-div'),
-                    $avatar = $('#avatar');
+                    $errorDiv = $('#error-msg');
 
-                $avatar.attr('src', '');
+                $errorDiv.hide();
+                $chartDiv.hide();
+                avatarLoad();
 
                 if(selectedUser) {
                     $loading.show();
-                    $chartDiv.hide();
-                    $avatar.hide();
 
                     $.getJSON('/api/v1/mean_time_weekday/' + selectedUser, function(result) {
                         var data = new google.visualization.DataTable(),
@@ -43,10 +43,9 @@
                             options = {
                                 hAxis: {
                                     title: 'Weekday'
-                                }
+                                },
+                                width: 750
                             };
-
-                        $avatar.attr('src', avatarById[selectedUser]);
 
                         $.each(result, function(index, value) {
                             value[1] = parseInterval(value[1]);
@@ -57,14 +56,18 @@
                         data.addRows(result);
 
                         formatter.format(data, 1);
-
-                        $chartDiv.show();
-                        $avatar.show();
-                        $loading.hide();
                         chart.draw(data, options);
-                    });
-                } else {
-                    $chartDiv.hide();
+                    })
+                        .success(function () {
+                            $chartDiv.show();
+                            $loading.hide();
+                        })
+                        .error(function () {
+                            $errorDiv.text('User has no data.').show();
+                        })
+                        .complete(function () {
+                            avatarLoad(avatarById[selectedUser]).show();
+                        });
                 }
             });
         });

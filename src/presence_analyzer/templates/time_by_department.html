@@ -3,14 +3,7 @@
 <%block name='js'>
     <script type="text/javascript">
         $(function() {
-            var $loading = $('#loading'),
-                nameAndAvatarById = {};
-
-            $.getJSON('/api/v1/users', function (result) {
-                $.each(result, function () {
-                    nameAndAvatarById[this.user_id] = [this.name, this.avatar];
-                });
-            });
+            var $loading = $('#loading');
 
             $.getJSON('/api/v1/years_and_months/', function (result) {
                 var $dropdown = $('#user-id');
@@ -29,49 +22,48 @@
             $('#user-id').change(function () {
                 var selectedUser = $('#user-id').val(),
                     $chartDiv = $('#chart-div'),
-                    date = selectedUser.replace('-', '/');
+                    date = selectedUser.replace('-', '/'),
+                    $errorDiv = $('#error-msg');
 
                 $chartDiv.hide();
+                $errorDiv.hide();
 
                 if (selectedUser) {
                     $loading.show();
 
-                    $.getJSON('/api/v1/top_five/' + date, function (result) {
+                    $.getJSON('/api/v1/department/' + date, function (result) {
                         var chart,
                             data,
                             chartValues = [],
-                            colors = ['#b9f2ff', '#e5e4e2', '#ffd700', '#c0c0c0', '#cd7f32'],
                             options = {
                                 tooltip: {isHtml: true},
-                                width: 750
+                                width: 750,
+                                vAxis: {
+                                    gridlines: {
+                                        count: 6
+                                    }
+                                }
                             };
 
                         $.each(result, function (index, item) {
-                            var validateUser = function () {
-                                    var user = nameAndAvatarById[item[0]];
-                                    if (!user) {
-                                        return ['Unnamed', 'https://intranet.stxnext.pl/api/images/users/filler'];
-                                    }
-                                    return user;
-                                },
-                                time = formatSeconds(item[1]),
-                                color = colors[index],
+                            var time = formatSeconds(item[1]),
                                 tooltip = [
                                     'Time: ',
                                     time,
+                                    ' h',
                                     '<br />',
-                                    '<img src="' + validateUser()[1] + '">'
+                                    'Employees: ',
+                                    item[2]
                                 ].join ('');
 
                             chartValues[index] = [
-                                validateUser()[0], time, color, tooltip
+                                item[0], time, tooltip
                             ];
                         });
                         chartValues.unshift([
-                            {type: 'string', label: 'User'},
+                            {type: 'string', label: 'Department'},
                             {type: 'number', label: 'Time in \n(h)', p: {html: true}},
-                            {type: 'string', role: 'style'},
-                            {label: 'Avatar', role: 'tooltip', p: {html: true}}
+                            {label: 'Employees', role: 'tooltip', p: {html: true}}
                         ]);
 
                         data = google.visualization.arrayToDataTable(chartValues);
@@ -83,10 +75,13 @@
                             $chartDiv.show();
                             $loading.hide();
                         })
+                        .error(function () {
+                            $errorDiv.text('Something went wrong.').show();
+                        })
                 }
             });
         });
     </script>
 </%block>
 
-<%block name='header'>Top 5 work hours by month of the year.</%block>
+<%block name='header'>Department work time by month of the year.</%block>

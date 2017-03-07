@@ -101,10 +101,15 @@ def get_data():
                 date = datetime.strptime(row[1], '%Y-%m-%d').date()
                 start = datetime.strptime(row[2], '%H:%M:%S').time()
                 end = datetime.strptime(row[3], '%H:%M:%S').time()
+                city = row[4].decode('utf-8')
             except (ValueError, TypeError):
                 log.debug('Problem with line %d: ', i, exc_info=True)
 
-            data.setdefault(user_id, {})[date] = {'start': start, 'end': end}
+            data.setdefault(user_id, {})[date] = {
+                'start': start,
+                'end': end,
+                'city': city
+            }
 
     return data
 
@@ -170,6 +175,57 @@ def get_data_by_date():
             else:
                 result[date] = {
                     user_id: interval(worktime['start'], worktime['end'])
+                }
+
+    return result
+
+
+def get_department_worktime_by_date():
+    """
+    Returns user work time by department by month from get_data().
+
+    Returns: Dict of dicts eg:
+    {
+        '2013-9: {
+            'Piła': {
+                10: 31395,
+                12: 45863
+            },
+            'Poznań': {
+                10: 31395,
+                12: 45863
+            },
+            (...),
+        },
+        (...),
+    }
+    """
+    data = get_data()
+    result = {}
+
+    for user_id, values in data.iteritems():
+        for date, user_data in values.iteritems():
+            format_date = date.strftime('%Y-%-m')
+            city = user_data['city']
+            start = user_data['start']
+            end = user_data['end']
+
+            if format_date in result:
+                if city in result[format_date]:
+                    result[format_date][city].update(
+                        {
+                            user_id: interval(start, end)
+                        }
+                    )
+                else:
+                    result[format_date][city] = {
+                        user_id: interval(start, end)
+                    }
+            else:
+                result[format_date] = {
+                    city: {
+                        user_id: interval(start, end)
+                    }
                 }
 
     return result

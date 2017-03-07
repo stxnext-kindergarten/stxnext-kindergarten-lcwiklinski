@@ -245,6 +245,30 @@ class PresenceAnalyzerViewsTestCase(unittest.TestCase):
             }
         )
 
+    def test_department_view(self):
+        """
+        Test result department work time
+        in specific year and month.
+        """
+        api = self.client.get(
+            '/api/v1/department/2011/0',
+        )
+        correct = self.client.get(
+            '/api/v1/department/2013/9',
+        )
+        result = json.loads(correct.data)
+
+        self.assertEqual(api.status_code, httplib.OK)
+        self.assertEqual(
+            result,
+            [
+                ['Łódź', 41029, 2],
+                ['Poznań', 54170, 2],
+                ['Wrocław', 49026, 2],
+                ['Piła', 22999, 1]
+            ]
+        )
+
     def test_static_page(self):
         """
         Test static page method.
@@ -289,53 +313,53 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
             utils.cache['((t(dp0\ntp1\n.']['value'],
             {
                 10: {
-                    datetime.date(2013, 9, 10):
-                        {
-                            'start': datetime.time(9, 39, 5),
-                            'end': datetime.time(17, 59, 52)
-                        },
-                    datetime.date(2013, 9, 12):
-                        {
-                            'start': datetime.time(10, 48, 46),
-                            'end': datetime.time(17, 23, 51)
-                        },
-                    datetime.date(2013, 9, 11):
-                        {
-                            'start': datetime.time(9, 19, 52),
-                            'end': datetime.time(16, 7, 37)
-                        }
+                    datetime.date(2013, 9, 10): {
+                        'start': datetime.time(9, 39, 5),
+                        'end': datetime.time(17, 59, 52),
+                        'city': 'Poznań'
+                    },
+                    datetime.date(2013, 9, 12): {
+                        'start': datetime.time(10, 48, 46),
+                        'end': datetime.time(17, 23, 51),
+                        'city': 'Wrocław'
+                    },
+                    datetime.date(2013, 9, 11): {
+                        'start': datetime.time(9, 19, 52),
+                        'end': datetime.time(16, 7, 37),
+                        'city': 'Łódź'
+                    }
                 },
                 11: {
-                    datetime.date(2013, 9, 13):
-                        {
-                            'start': datetime.time(13, 16, 56),
-                            'end': datetime.time(15, 4, 2)
-                        },
-                    datetime.date(2013, 9, 12):
-                        {
-                            'start': datetime.time(10, 18, 36),
-                            'end': datetime.time(16, 41, 25)
-                        },
-                    datetime.date(2013, 9, 11):
-                        {
-                            'start': datetime.time(9, 13, 26),
-                            'end': datetime.time(16, 15, 27)
-                        },
-                    datetime.date(2013, 9, 10):
-                        {
-                            'start': datetime.time(9, 19, 50),
-                            'end': datetime.time(13, 55, 54)
-                        },
-                    datetime.date(2013, 9, 9):
-                        {
-                            'start': datetime.time(9, 12, 14),
-                            'end': datetime.time(15, 54, 17)
-                        },
-                    datetime.date(2013, 9, 5):
-                        {
-                            'start': datetime.time(9, 28, 8),
-                            'end': datetime.time(15, 51, 27)
-                        }
+                    datetime.date(2013, 9, 13): {
+                        'start': datetime.time(13, 16, 56),
+                        'end': datetime.time(15, 4, 2),
+                        'city': 'Piła'
+                    },
+                    datetime.date(2013, 9, 12): {
+                        'start': datetime.time(10, 18, 36),
+                        'end': datetime.time(16, 41, 25),
+                        'city': 'Piła'
+                    },
+                    datetime.date(2013, 9, 11): {
+                        'start': datetime.time(9, 13, 26),
+                        'end': datetime.time(16, 15, 27),
+                        'city': 'Wrocław'
+                    },
+                    datetime.date(2013, 9, 10): {
+                        'start': datetime.time(9, 19, 50),
+                        'end': datetime.time(13, 55, 54),
+                        'city': 'Łódź'
+                    },
+                    datetime.date(2013, 9, 9): {
+                        'start': datetime.time(9, 12, 14),
+                        'end': datetime.time(15, 54, 17),
+                        'city': 'Poznań'
+                    },
+                    datetime.date(2013, 9, 5): {
+                        'start': datetime.time(9, 28, 8),
+                        'end': datetime.time(15, 51, 27),
+                        'city': 'Piła'
+                    }
                 }
             }
         )
@@ -357,7 +381,7 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
         self.assertIsInstance(data, dict)
         self.assertItemsEqual(data.keys(), [10, 11])
         self.assertIn(sample_date, data[10])
-        self.assertItemsEqual(data[10][sample_date].keys(), ['start', 'end'])
+        self.assertItemsEqual(data[10][sample_date].keys(), ['start', 'end', 'city'])
         self.assertEqual(
             data[10][sample_date]['start'],
             datetime.time(9, 39, 5)
@@ -453,6 +477,22 @@ class PresenceAnalyzerUtilsTestCase(unittest.TestCase):
                 }
             ),
             [[], [30047], [24465], [23705], [], [], [],]
+        )
+
+    def test_get_department_worktime_by_date(self):
+        """
+        Test work time for department by date.
+        """
+        data = utils.get_department_worktime_by_date()
+
+        self.assertItemsEqual(
+            data['2013-9'],
+            {
+                'Łódź': {10: 24465, 11: 16564},
+                'Poznań': {10: 30047, 11: 24123},
+                'Wrocław': {10: 23705, 11: 25321},
+                'Piła': {11: 22999}
+            }
         )
 
     def test_group_by_weekday_start_end(self):

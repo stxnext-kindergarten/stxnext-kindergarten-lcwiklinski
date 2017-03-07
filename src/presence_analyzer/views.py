@@ -17,6 +17,7 @@ from presence_analyzer.main import app
 from presence_analyzer.utils import (
     get_data,
     get_data_by_date,
+    get_department_worktime_by_date,
     get_xml_data,
     get_year_and_months,
     group_by_weekday,
@@ -149,6 +150,23 @@ def top_five_worktime(year, month):
     ]
 
     return top_five(result)
+
+
+@app.route('/api/v1/department/<int:year>/<int:month>', methods=['GET'])
+@jsonify
+def department_time(year, month):
+    """
+    Returns department sum of work time grouped by month.
+    """
+    department = get_department_worktime_by_date()
+    result = [
+        (city, sum(user_worktime.values()), len(user_worktime.keys()))
+        for date, value in department.iteritems()
+        for city, user_worktime in value.iteritems()
+        if date == '{}-{}'.format(year, month)
+    ]
+
+    return result
 
 
 @app.route('/api/v1/presence_start_end/<int:user_id>', methods=['GET'])

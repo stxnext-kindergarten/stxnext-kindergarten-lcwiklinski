@@ -33,8 +33,6 @@
 
                 if(selectedUser) {
                     $loading.show();
-                    $chartDiv.hide();
-                    $errorDiv.hide();
 
                     $.getJSON('/api/v1/presence_weekday/' + selectedUser, function(result) {
                         var data = new google.visualization.arrayToDataTable(result),
